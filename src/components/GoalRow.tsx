@@ -44,13 +44,26 @@ export function GoalRow({
     }
   }, [editing]);
 
-  useEffect(() => () => clearTimeout(timer.current), []);
-
   const save = (v: string) => {
     if (v === lastSaved.current) return;
     lastSaved.current = v;
     onPatch(goal, { text: v });
   };
+
+  const textRef = useRef(text);
+  textRef.current = text;
+  const saveRef = useRef(save);
+  saveRef.current = save;
+  const editingRef = useRef(editing);
+  editingRef.current = editing;
+
+  useEffect(
+    () => () => {
+      clearTimeout(timer.current);
+      if (editingRef.current) saveRef.current(textRef.current);
+    },
+    [],
+  );
 
   return (
     <li className="flex items-start gap-3 py-2">

@@ -118,9 +118,11 @@ function HistoryPage() {
                 >
                   Editar etiqueta
                 </DropdownMenuItem>
-                <DropdownMenuItem className="min-h-11 text-destructive" onClick={() => setDel(s)}>
-                  Eliminar
-                </DropdownMenuItem>
+                {!s.is_current && (
+                  <DropdownMenuItem className="min-h-11 text-destructive" onClick={() => setDel(s)}>
+                    Eliminar
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </li>

@@ -96,6 +96,19 @@ function Home() {
 
       {isLoading && <p className="text-muted-foreground">Cargando…</p>}
       {error && <p className="text-destructive">No se pudieron cargar tus metas.</p>}
+      {!isLoading && !error && !data && (
+        <section className="space-y-4 rounded-2xl bg-card p-6 text-center shadow-soft">
+          <p className="font-display text-xl font-semibold">No hay semana activa</p>
+          <div className="flex flex-col items-center gap-2">
+            <Button className="h-11" onClick={() => setOpen(true)}>
+              <Plus className="mr-1 h-5 w-5" /> Nueva semana
+            </Button>
+            <Link to="/historial" className="inline-flex min-h-11 items-center font-medium text-muted-foreground hover:text-foreground">
+              Ver Historial
+            </Link>
+          </div>
+        </section>
+      )}
       {data && (
         <>
           <SnapshotBar snapshot={data.snapshot} />
