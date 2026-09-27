@@ -37,17 +37,21 @@ export const Route = createFileRoute("/_authenticated/historial/")({
   component: HistoryPage,
 });
 
-type Row = Snapshot & { done: number };
+type Row = Snapshot & { done: number; total: number };
 
 async function fetchHistory(): Promise<Row[]> {
   const [{ data: snaps, error }, { data: goals }] = await Promise.all([
     supabase.from("snapshots").select("*").order("snapshot_date", { ascending: false }).order("created_at", { ascending: false }),
-    supabase.from("goals").select("snapshot_id").eq("done", true),
+    supabase.from("goals").select("snapshot_id, done"),
   ]);
   if (error) throw error;
   const counts: Record<string, number> = {};
-  (goals ?? []).forEach((g) => (counts[g.snapshot_id] = (counts[g.snapshot_id] ?? 0) + 1));
-  return (snaps ?? []).map((s) => ({ ...s, done: counts[s.id] ?? 0 }));
+  const totals: Record<string, number> = {};
+  (goals ?? []).forEach((g) => {
+    totals[g.snapshot_id] = (totals[g.snapshot_id] ?? 0) + 1;
+    if (g.done) counts[g.snapshot_id] = (counts[g.snapshot_id] ?? 0) + 1;
+  });
+  return (snaps ?? []).map((s) => ({ ...s, done: counts[s.id] ?? 0, total: totals[s.id] ?? 0 }));
 }
 
 function HistoryPage() {
@@ -99,7 +103,7 @@ function HistoryPage() {
                 {[s.week_label, s.month_label, new Date(s.snapshot_date + "T00:00").toLocaleDateString("es")].filter(Boolean).join(" · ")}
               </p>
               <p className="mt-1 text-sm">
-                <span className="font-semibold">{s.done}/45</span> completadas
+                <span className="font-semibold">{s.done}/{s.total}</span> completadas
               </p>
             </Link>
             <DropdownMenu>
@@ -134,7 +138,7 @@ function HistoryPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>¿Eliminar la semana {del?.label}?</AlertDialogTitle>
             <AlertDialogDescription>
-              Se borrarán sus 45 metas. Esta acción no se puede deshacer.
+              Se borrarán sus {del?.total} metas. Esta acción no se puede deshacer.
               {del?.is_current && " Es la semana actual."}
             </AlertDialogDescription>
           </AlertDialogHeader>

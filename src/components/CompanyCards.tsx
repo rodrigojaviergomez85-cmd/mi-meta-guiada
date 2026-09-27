@@ -16,10 +16,10 @@ export function CompanyCards({ goals, linkable = true }: { goals: Goal[]; linkab
               <span className="h-4 w-4 rounded-full" style={{ backgroundColor: c.color }} />
             </div>
             <div className="mt-6 h-2 overflow-hidden rounded-full bg-muted">
-              <div className="h-full rounded-full transition-all" style={{ width: `${(done / 15) * 100}%`, backgroundColor: c.color }} />
+              <div className="h-full rounded-full transition-all" style={{ width: `${(cg.length ? done / cg.length : 0) * 100}%`, backgroundColor: c.color }} />
             </div>
             <p className="mt-3 text-muted-foreground">
-              <span className="font-semibold text-foreground">{done}/15</span> metas completadas
+              <span className="font-semibold text-foreground">{done}/{cg.length}</span> metas completadas
             </p>
           </>
         );
