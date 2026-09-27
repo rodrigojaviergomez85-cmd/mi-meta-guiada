@@ -41,7 +41,7 @@ type Row = Snapshot & { done: number; total: number };
 
 async function fetchHistory(): Promise<Row[]> {
   const [{ data: snaps, error }, { data: goals }] = await Promise.all([
-    supabase.from("snapshots").select("*").order("snapshot_date", { ascending: false }).order("created_at", { ascending: false }),
+    supabase.from("snapshots").select("*").order("week_start", { ascending: false, nullsFirst: false }).order("snapshot_date", { ascending: false }).order("created_at", { ascending: false }),
     supabase.from("goals").select("snapshot_id, done"),
   ]);
   if (error) throw error;
@@ -94,7 +94,7 @@ function HistoryPage() {
           <li key={s.id} className="flex items-center gap-2 rounded-2xl bg-card pr-2 shadow-soft">
             <Link to="/historial/$snapshotId" params={{ snapshotId: s.id }} className="min-w-0 flex-1 p-4">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="font-display text-lg font-semibold">{s.label}</span>
+                <span className="font-display text-lg font-semibold">{s.week_number ? `S${s.week_number} · ` : ""}{s.label}</span>
                 {s.is_current && (
                   <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground">Actual</span>
                 )}

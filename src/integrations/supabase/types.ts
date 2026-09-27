@@ -153,7 +153,11 @@ export type Database = {
           snapshot_date: string
           updated_at: string
           user_id: string
+          week_end: string | null
           week_label: string
+          week_number: number | null
+          week_start: string | null
+          year: number | null
         }
         Insert: {
           annual_label?: string
@@ -165,7 +169,11 @@ export type Database = {
           snapshot_date?: string
           updated_at?: string
           user_id?: string
+          week_end?: string | null
           week_label?: string
+          week_number?: number | null
+          week_start?: string | null
+          year?: number | null
         }
         Update: {
           annual_label?: string
@@ -177,7 +185,11 @@ export type Database = {
           snapshot_date?: string
           updated_at?: string
           user_id?: string
+          week_end?: string | null
           week_label?: string
+          week_number?: number | null
+          week_start?: string | null
+          year?: number | null
         }
         Relationships: []
       }
@@ -210,10 +222,23 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      create_new_week: {
-        Args: { _label: string; _month_label: string; _week_label: string }
-        Returns: string
-      }
+      create_new_week:
+        | {
+            Args: { _label: string; _month_label: string; _week_label: string }
+            Returns: string
+          }
+        | {
+            Args: {
+              _label: string
+              _month_label: string
+              _week_end: string
+              _week_label: string
+              _week_number: number
+              _week_start: string
+              _year: number
+            }
+            Returns: string
+          }
       delete_goal: { Args: { _id: string }; Returns: undefined }
       has_any_user: { Args: never; Returns: boolean }
       is_owner: { Args: never; Returns: boolean }

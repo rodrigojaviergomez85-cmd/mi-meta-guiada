@@ -60,7 +60,7 @@ function CompanyPage() {
       {data && (
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm text-muted-foreground">
-            Semana: <span className="font-medium text-foreground">{data.snapshot.label}</span>
+            {data.snapshot.week_number ? `Semana ${data.snapshot.week_number} · ` : "Semana: "}<span className="font-medium text-foreground">{data.snapshot.label}</span>
           </p>
           {people.length > 0 && (
             <Select value={filter} onValueChange={setFilter}>
