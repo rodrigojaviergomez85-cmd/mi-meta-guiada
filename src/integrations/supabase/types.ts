@@ -14,16 +14,123 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      goals: {
+        Row: {
+          company: Database["public"]["Enums"]["goal_company"]
+          done: boolean
+          id: string
+          level: Database["public"]["Enums"]["goal_level"]
+          position: number
+          snapshot_id: string
+          text: string
+          updated_at: string
+        }
+        Insert: {
+          company: Database["public"]["Enums"]["goal_company"]
+          done?: boolean
+          id?: string
+          level: Database["public"]["Enums"]["goal_level"]
+          position: number
+          snapshot_id: string
+          text?: string
+          updated_at?: string
+        }
+        Update: {
+          company?: Database["public"]["Enums"]["goal_company"]
+          done?: boolean
+          id?: string
+          level?: Database["public"]["Enums"]["goal_level"]
+          position?: number
+          snapshot_id?: string
+          text?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goals_snapshot_id_fkey"
+            columns: ["snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "snapshots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          core_values: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          core_values?: string
+          id: string
+          name?: string
+          updated_at?: string
+        }
+        Update: {
+          core_values?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      snapshots: {
+        Row: {
+          annual_label: string
+          created_at: string
+          id: string
+          is_current: boolean
+          label: string
+          month_label: string
+          snapshot_date: string
+          updated_at: string
+          user_id: string
+          week_label: string
+        }
+        Insert: {
+          annual_label?: string
+          created_at?: string
+          id?: string
+          is_current?: boolean
+          label: string
+          month_label?: string
+          snapshot_date?: string
+          updated_at?: string
+          user_id?: string
+          week_label?: string
+        }
+        Update: {
+          annual_label?: string
+          created_at?: string
+          id?: string
+          is_current?: boolean
+          label?: string
+          month_label?: string
+          snapshot_date?: string
+          updated_at?: string
+          user_id?: string
+          week_label?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_new_week: {
+        Args: { _label: string; _month_label: string; _week_label: string }
+        Returns: string
+      }
+      has_any_user: { Args: never; Returns: boolean }
+      make_current: { Args: { _id: string }; Returns: undefined }
+      seed_if_empty: { Args: never; Returns: undefined }
     }
     Enums: {
-      [_ in never]: never
+      goal_company: "personal" | "e4cc" | "e4kids"
+      goal_level: "annual" | "monthly" | "weekly"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +257,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      goal_company: ["personal", "e4cc", "e4kids"],
+      goal_level: ["annual", "monthly", "weekly"],
+    },
   },
 } as const
