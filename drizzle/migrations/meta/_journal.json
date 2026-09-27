@@ -15,6 +15,13 @@
       "when": 1790511006761,
       "tag": "0001_restrict_owner_email",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790512549019,
+      "tag": "0002_variable_goal_count",
+      "breakpoints": true
     }
   ]
 }
