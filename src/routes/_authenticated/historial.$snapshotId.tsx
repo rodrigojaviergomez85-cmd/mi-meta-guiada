@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { CompanyGoals } from "@/components/CompanyGoals";
 import { SnapshotBar } from "@/components/SnapshotBar";
-import { CompanyCards } from "./index";
+import { CompanyCards } from "@/components/CompanyCards";
 import { COMPANIES } from "@/lib/goals";
 import { useSnapshot } from "@/lib/hooks";
 
