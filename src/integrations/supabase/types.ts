@@ -14,8 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      goal_comments: {
+        Row: {
+          body: string
+          created_at: string
+          goal_id: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          goal_id: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          goal_id?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_comments_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       goals: {
         Row: {
+          assignee_id: string | null
           company: Database["public"]["Enums"]["goal_company"]
           done: boolean
           id: string
@@ -26,6 +59,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          assignee_id?: string | null
           company: Database["public"]["Enums"]["goal_company"]
           done?: boolean
           id?: string
@@ -36,6 +70,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          assignee_id?: string | null
           company?: Database["public"]["Enums"]["goal_company"]
           done?: boolean
           id?: string
@@ -47,6 +82,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "goals_assignee_id_fkey"
+            columns: ["assignee_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "goals_snapshot_id_fkey"
             columns: ["snapshot_id"]
             isOneToOne: false
@@ -54,6 +96,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      people: {
+        Row: {
+          active: boolean
+          created_at: string | null
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string | null
+          id?: string
+          name: string
+          user_id?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string | null
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -127,6 +193,7 @@ export type Database = {
           _snapshot_id: string
         }
         Returns: {
+          assignee_id: string | null
           company: Database["public"]["Enums"]["goal_company"]
           done: boolean
           id: string

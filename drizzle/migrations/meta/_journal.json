@@ -22,6 +22,13 @@
       "when": 1790512549019,
       "tag": "0002_variable_goal_count",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790512873719,
+      "tag": "0003_people_and_comments",
+      "breakpoints": true
     }
   ]
 }
