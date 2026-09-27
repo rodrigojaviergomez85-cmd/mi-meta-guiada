@@ -26,7 +26,7 @@ export function CompanyGoals({
   const [autoEditId, setAutoEditId] = useState<string | null>(null);
   const sid = data.snapshot.id;
   const update = (fn: (goals: Goal[]) => Goal[]) =>
-    qc.setQueriesData<unknown>({}, (old) => {
+    qc.setQueriesData<unknown>({}, (old: unknown) => {
       const o = old as SnapshotData | null | undefined;
       return o && typeof o === "object" && "snapshot" in o && o.snapshot?.id === sid ? { ...o, goals: fn(o.goals) } : old;
     });
