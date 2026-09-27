@@ -23,7 +23,7 @@ export function useProfile() {
   return useQuery({ queryKey: ["profile"], queryFn: fetchProfile });
 }
 
-export type GoalPatch = { text?: string; done?: boolean };
+export type GoalPatch = { text?: string; done?: boolean; assignee_id?: string | null };
 
 export function usePatchGoal(key: readonly unknown[]) {
   const qc = useQueryClient();

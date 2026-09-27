@@ -3,6 +3,7 @@ import { ChevronDown, Plus } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useCommentCounts } from "@/lib/people";
 import { GoalRow } from "./GoalRow";
 import { LEVELS, companyInfo, goalsFor, levelTitle, type Company, type SnapshotData, type Goal, type Level } from "@/lib/goals";
 import type { GoalPatch } from "@/lib/hooks";
@@ -14,17 +15,20 @@ export function CompanyGoals({
   readOnly,
   onPatch,
   showTitle,
+  assigneeFilter = "all",
 }: {
   data: SnapshotData;
   company: Company;
   readOnly?: boolean;
   onPatch: (goal: Goal, patch: GoalPatch) => void;
   showTitle?: boolean;
+  assigneeFilter?: string;
 }) {
   const info = companyInfo(company)!;
   const qc = useQueryClient();
   const [autoEditId, setAutoEditId] = useState<string | null>(null);
   const sid = data.snapshot.id;
+  const { data: counts = {} } = useCommentCounts(sid);
   const update = (fn: (goals: Goal[]) => Goal[]) =>
     qc.setQueriesData<unknown>({}, (old: unknown) => {
       const o = old as SnapshotData | null | undefined;
@@ -88,7 +92,9 @@ export function CompanyGoals({
             </button>
             {open[level] && (
               <ul className="divide-y divide-border px-3 pb-2">
-                {goals.map((g) => (
+                {goals
+                  .filter((g) => assigneeFilter === "all" || (assigneeFilter === "none" ? !g.assignee_id : g.assignee_id === assigneeFilter))
+                  .map((g) => (
                   <GoalRow
                     key={g.id}
                     goal={g}
@@ -96,6 +102,7 @@ export function CompanyGoals({
                     readOnly={readOnly}
                     onPatch={onPatch}
                     autoEdit={g.id === autoEditId}
+                    commentCount={counts[g.id] ?? 0}
                     onDelete={!readOnly && goals.length > 1 ? () => void deleteGoal(g) : undefined}
                   />
                 ))}

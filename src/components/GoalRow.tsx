@@ -12,6 +12,8 @@ import {
 import type { Goal } from "@/lib/goals";
 import type { GoalPatch } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
+import { AssigneeChip } from "./AssigneeChip";
+import { CommentsChip } from "./CommentsChip";
 
 export function GoalRow({
   goal,
@@ -20,6 +22,7 @@ export function GoalRow({
   onPatch,
   onDelete,
   autoEdit,
+  commentCount = 0,
 }: {
   goal: Goal;
   color: string;
@@ -27,6 +30,7 @@ export function GoalRow({
   onPatch: (goal: Goal, patch: GoalPatch) => void;
   onDelete?: (() => void) | undefined;
   autoEdit?: boolean | undefined;
+  commentCount?: number | undefined;
 }) {
   const [editing, setEditing] = useState(!!autoEdit && !readOnly);
   const [confirm, setConfirm] = useState(false);
@@ -138,6 +142,14 @@ export function GoalRow({
             {goal.text || (readOnly ? "—" : "Toca para escribir…")}
           </p>
         )}
+        <div className="mt-1 flex flex-wrap items-center gap-x-2">
+          <AssigneeChip
+            assigneeId={goal.assignee_id}
+            readOnly={readOnly}
+            onChange={(id) => onPatch(goal, { assignee_id: id })}
+          />
+          <CommentsChip goal={goal} count={commentCount} readOnly={readOnly} />
+        </div>
       </div>
       {onDelete && !readOnly && (
         <button

@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { COMPANIES, companyInfo, type Company } from "@/lib/goals";
 import { currentKey, useCurrent, usePatchGoal } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
+import { usePeople } from "@/lib/people";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/c/$company")({
   beforeLoad: ({ params }) => {
@@ -32,6 +34,8 @@ function CompanyPage() {
   const { data, isLoading } = useCurrent();
   const onPatch = usePatchGoal(currentKey);
   const [full, setFull] = useState(false);
+  const [filter, setFilter] = useState("all");
+  const { data: people = [] } = usePeople();
 
   return (
     <main className={cn("mx-auto space-y-5 px-4 pb-28 pt-4 lg:pb-10", full ? "max-w-[1600px]" : "max-w-3xl")}>
@@ -54,9 +58,25 @@ function CompanyPage() {
         </div>
       </header>
       {data && (
-        <p className="text-sm text-muted-foreground">
-          Semana: <span className="font-medium text-foreground">{data.snapshot.label}</span>
-        </p>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-sm text-muted-foreground">
+            Semana: <span className="font-medium text-foreground">{data.snapshot.label}</span>
+          </p>
+          {people.length > 0 && (
+            <Select value={filter} onValueChange={setFilter}>
+              <SelectTrigger className="h-11 w-auto min-w-[11rem] text-sm" aria-label="Filtrar por responsable">
+                <SelectValue placeholder="Filtrar por responsable" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all" className="min-h-11">Todos</SelectItem>
+                <SelectItem value="none" className="min-h-11">Sin responsable</SelectItem>
+                {people.map((p) => (
+                  <SelectItem key={p.id} value={p.id} className="min-h-11">{p.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
       )}
 
       {isLoading && <p className="text-muted-foreground">Cargando…</p>}
@@ -64,11 +84,11 @@ function CompanyPage() {
         (full ? (
           <div className="grid grid-cols-3 gap-5">
             {COMPANIES.map((c) => (
-              <CompanyGoals key={c.id} data={data} company={c.id} onPatch={onPatch} showTitle />
+              <CompanyGoals key={c.id} data={data} company={c.id} onPatch={onPatch} showTitle assigneeFilter={filter} />
             ))}
           </div>
         ) : (
-          <CompanyGoals data={data} company={company as Company} onPatch={onPatch} />
+          <CompanyGoals data={data} company={company as Company} onPatch={onPatch} assigneeFilter={filter} />
         ))}
 
       <nav
