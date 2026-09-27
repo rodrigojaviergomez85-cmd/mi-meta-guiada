@@ -120,10 +120,34 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_goal: {
+        Args: {
+          _company: Database["public"]["Enums"]["goal_company"]
+          _level: Database["public"]["Enums"]["goal_level"]
+          _snapshot_id: string
+        }
+        Returns: {
+          company: Database["public"]["Enums"]["goal_company"]
+          done: boolean
+          id: string
+          level: Database["public"]["Enums"]["goal_level"]
+          position: number
+          snapshot_id: string
+          text: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "goals"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_new_week: {
         Args: { _label: string; _month_label: string; _week_label: string }
         Returns: string
       }
+      delete_goal: { Args: { _id: string }; Returns: undefined }
       has_any_user: { Args: never; Returns: boolean }
       is_owner: { Args: never; Returns: boolean }
       make_current: { Args: { _id: string }; Returns: undefined }

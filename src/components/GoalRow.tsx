@@ -1,5 +1,14 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Check } from "lucide-react";
+import { Check, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { Goal } from "@/lib/goals";
 import type { GoalPatch } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
@@ -9,13 +18,18 @@ export function GoalRow({
   color,
   readOnly,
   onPatch,
+  onDelete,
+  autoEdit,
 }: {
   goal: Goal;
   color: string;
   readOnly?: boolean | undefined;
   onPatch: (goal: Goal, patch: GoalPatch) => void;
+  onDelete?: (() => void) | undefined;
+  autoEdit?: boolean | undefined;
 }) {
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(!!autoEdit && !readOnly);
+  const [confirm, setConfirm] = useState(false);
   const [text, setText] = useState(goal.text);
   const ref = useRef<HTMLTextAreaElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -66,7 +80,7 @@ export function GoalRow({
   );
 
   return (
-    <li className="flex items-start gap-3 py-2">
+    <li className="group flex items-start gap-3 py-2">
       <span
         className="mt-2.5 grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-bold"
         style={{ backgroundColor: `color-mix(in oklch, ${color} 15%, transparent)`, color }}
@@ -125,6 +139,30 @@ export function GoalRow({
           </p>
         )}
       </div>
+      {onDelete && !readOnly && (
+        <button
+          type="button"
+          aria-label="Borrar meta"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => ((editing ? text : goal.text).trim() ? setConfirm(true) : onDelete())}
+          className="grid h-11 w-9 shrink-0 place-items-center rounded-lg text-muted-foreground/60 transition-opacity hover:text-destructive lg:opacity-0 lg:group-hover:opacity-100 lg:focus-visible:opacity-100"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      )}
+      <AlertDialog open={confirm} onOpenChange={setConfirm}>
+        <AlertDialogContent className="rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Borrar esta meta?</AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="h-11">Cancelar</AlertDialogCancel>
+            <AlertDialogAction className="h-11 bg-destructive text-destructive-foreground" onClick={() => onDelete?.()}>
+              Borrar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </li>
   );
 }
