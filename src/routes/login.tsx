@@ -18,6 +18,8 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
+const OWNER_EMAIL = "english4callcenters@gmail.com";
+
 function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -35,6 +37,10 @@ function LoginPage() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (email.trim().toLowerCase() !== OWNER_EMAIL) {
+      toast.error("Esta app es privada. Acceso no autorizado.");
+      return;
+    }
     setBusy(true);
     if (mode === "in") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
