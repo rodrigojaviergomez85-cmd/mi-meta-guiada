@@ -8,6 +8,13 @@
       "when": 1790510390117,
       "tag": "0000_mi411_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790511006761,
+      "tag": "0001_restrict_owner_email",
+      "breakpoints": true
     }
   ]
 }

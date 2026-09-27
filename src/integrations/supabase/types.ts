@@ -125,6 +125,7 @@ export type Database = {
         Returns: string
       }
       has_any_user: { Args: never; Returns: boolean }
+      is_owner: { Args: never; Returns: boolean }
       make_current: { Args: { _id: string }; Returns: undefined }
       seed_if_empty: { Args: never; Returns: undefined }
     }
