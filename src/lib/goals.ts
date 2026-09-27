@@ -44,7 +44,7 @@ export function formatDateTime(iso: string) {
 export type SnapshotData = { snapshot: Snapshot; goals: Goal[] };
 
 // ---------- Offline-tolerant save queue ----------
-type Patch = { text?: string; done?: boolean };
+type Patch = { text?: string; done?: boolean; assignee_id?: string | null };
 const KEY = "mi411-pending-v1";
 type Status = "idle" | "saving" | "saved" | "error";
 let pending: Record<string, Patch> = {};
