@@ -18,7 +18,10 @@ export function SnapshotBar({ snapshot, readOnly }: { snapshot: Snapshot; readOn
       .from("snapshots")
       .update({ label: f.label, month_label: f.month_label, week_label: f.week_label, annual_label: f.annual_label })
       .eq("id", snapshot.id);
-    if (error) return toast.error("No se pudo guardar");
+    if (error) {
+      toast.error("No se pudo guardar");
+      return;
+    }
     toast.success("Guardado ✓");
     setEditing(false);
     qc.invalidateQueries();

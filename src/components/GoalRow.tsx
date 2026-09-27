@@ -12,7 +12,7 @@ export function GoalRow({
 }: {
   goal: Goal;
   color: string;
-  readOnly?: boolean;
+  readOnly?: boolean | undefined;
   onPatch: (goal: Goal, patch: GoalPatch) => void;
 }) {
   const [editing, setEditing] = useState(false);

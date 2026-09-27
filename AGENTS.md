@@ -8,3 +8,8 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+## Architecture
+- Data access is client-side via the browser Supabase client + TanStack Query, all app routes under `_authenticated/` (ssr:false); why: single-user app, RLS enforces ownership.
+- Goal edits go through the localStorage-backed save queue in `src/lib/goals.ts`; why: offline-tolerant autosave, never lose edits.
+- New week / seeding / make-current are SQL RPCs (`create_new_week`, `seed_if_empty`, `make_current`); why: atomic copy of 45 goals.

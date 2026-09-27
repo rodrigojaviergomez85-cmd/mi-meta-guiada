@@ -41,7 +41,10 @@ function SnapshotView() {
 
   const makeCurrent = async () => {
     const { error } = await supabase.rpc("make_current", { _id: snapshotId });
-    if (error) return toast.error("No se pudo cambiar");
+    if (error) {
+      toast.error("No se pudo cambiar");
+      return;
+    }
     await qc.invalidateQueries();
     toast.success("Ahora es la semana actual");
     navigate({ to: "/" });

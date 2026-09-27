@@ -30,7 +30,7 @@ export function todayLabel(d = new Date()) {
   return `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, "0")}.${String(d.getFullYear()).slice(2)}`;
 }
 export function currentMonthLabel(d = new Date()) {
-  return MONTHS[d.getMonth()];
+  return MONTHS[d.getMonth()] ?? "";
 }
 export function formatDateTime(iso: string) {
   return new Date(iso).toLocaleString("es", {
@@ -98,6 +98,7 @@ export async function flush() {
   let failed = false;
   for (const id of ids) {
     const p = pending[id];
+    if (!p) continue;
     try {
       const { error } = await supabase.from("goals").update(p).eq("id", id);
       if (error) throw error;
