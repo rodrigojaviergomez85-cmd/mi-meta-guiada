@@ -119,12 +119,12 @@ export function WeekPicker({
           Ya existe una semana con estas fechas (etiqueta {dup.label})
         </p>
       )}
-      <div className="relative flex justify-center">
+      <div className="flex flex-col items-center">
         <Button
           type="button"
           variant="outline"
           size="sm"
-          className="absolute right-12 top-3 z-10 h-8 px-2 text-xs"
+          className="h-9 self-end px-3 text-xs"
           onClick={() => {
             const t = mondayOf(new Date());
             onChange(t);
