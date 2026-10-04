@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Agenda, BtmStatusBadge, FollowUp, PriorityList } from "@/components/btm/BtmFields";
-import { useBtmMutations, useDayPlan, useSavedDates, useWeekPlan } from "@/lib/btm";
+import { useBtmMutations, useBtmSync, useBtmUser, useDayPlan, useSavedDates, useWeekPlan } from "@/lib/btm";
 import {
   addDaysKey,
   dayName,
@@ -47,6 +47,9 @@ function BtmPage() {
   const navigate = useNavigate({ from: "/btm" });
   const go = (s: Search) => navigate({ search: { view: s.view === "week" ? "week" : undefined, date: s.date }, replace: true });
   const step = view === "week" ? 7 : 1;
+  const uid = useBtmUser();
+  useBtmSync();
+  if (!uid) return <main className="mx-auto max-w-3xl px-4 pt-6 text-muted-foreground">Cargando…</main>;
 
   return (
     <main className="mx-auto max-w-3xl space-y-4 px-4 pb-16 pt-6">
@@ -78,7 +81,7 @@ function BtmPage() {
         <Button variant="ghost" size="icon" className="h-11 w-11 shrink-0" aria-label="Anterior" onClick={() => go({ view, date: addDaysKey(date, -step) })}>
           <ChevronLeft className="h-5 w-5" />
         </Button>
-        <DatePicker date={date} onPick={(d) => go({ view, date: d })} label={view === "week" ? weekTitle(date) : longDate(date)} />
+        <DatePicker uid={uid} date={date} onPick={(d) => go({ view, date: d })} label={view === "week" ? weekTitle(date) : longDate(date)} />
         <Button variant="ghost" size="icon" className="h-11 w-11 shrink-0" aria-label="Siguiente" onClick={() => go({ view, date: addDaysKey(date, step) })}>
           <ChevronRight className="h-5 w-5" />
         </Button>
@@ -87,7 +90,7 @@ function BtmPage() {
         </Button>
       </nav>
 
-      {view === "day" ? <DayView day={date} /> : <WeekView monday={mondayKey(date)} onOpenDay={(d) => go({ view: "day", date: d })} />}
+      {view === "day" ? <DayView key={uid} uid={uid} day={date} /> : <WeekView key={uid} uid={uid} monday={mondayKey(date)} onOpenDay={(d) => go({ view: "day", date: d })} />}
     </main>
   );
 }
@@ -97,9 +100,9 @@ function weekTitle(date: string) {
   return `Semana ${shortDate(m)} – ${shortDate(addDaysKey(m, 6))}`;
 }
 
-function DatePicker({ date, onPick, label }: { date: string; onPick: (d: string) => void; label: string }) {
+function DatePicker({ uid, date, onPick, label }: { uid: string; date: string; onPick: (d: string) => void; label: string }) {
   const [open, setOpen] = useState(false);
-  const { data: saved = [] } = useSavedDates();
+  const { data: saved = [] } = useSavedDates(uid);
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -148,9 +151,9 @@ function DatePicker({ date, onPick, label }: { date: string; onPick: (d: string)
   );
 }
 
-function DayView({ day }: { day: string }) {
-  const { data, isLoading, error } = useDayPlan(day);
-  const m = useBtmMutations();
+function DayView({ uid, day }: { uid: string; day: string }) {
+  const { data, isLoading, error } = useDayPlan(uid, day);
+  const m = useBtmMutations(uid);
   if (isLoading) return <p className="text-muted-foreground">Cargando…</p>;
   if (error || !data) return <p className="text-destructive">No se pudo cargar el día.</p>;
   // Keyed by day: switching dates remounts editors so pending text is saved to the date where it was typed.
@@ -163,9 +166,9 @@ function DayView({ day }: { day: string }) {
   );
 }
 
-function WeekView({ monday, onOpenDay }: { monday: string; onOpenDay: (d: string) => void }) {
-  const { data, isLoading, error } = useWeekPlan(monday);
-  const m = useBtmMutations();
+function WeekView({ uid, monday, onOpenDay }: { uid: string; monday: string; onOpenDay: (d: string) => void }) {
+  const { data, isLoading, error } = useWeekPlan(uid, monday);
+  const m = useBtmMutations(uid);
   if (isLoading) return <p className="text-muted-foreground">Cargando…</p>;
   if (error || !data) return <p className="text-destructive">No se pudo cargar la semana.</p>;
   const today = todayKey();
