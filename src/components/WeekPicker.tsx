@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { addDays, format, getISOWeek, getISOWeekYear, getISOWeeksInYear, isSunday, startOfWeek } from "date-fns";
 import { es } from "date-fns/locale";
@@ -74,6 +74,14 @@ export function findExisting(list: Existing[], monday: Date, excludeId?: string)
   );
 }
 
+/** First week from today on (Sunday counts as next week) that isn't already in the history. */
+export function defaultMonday(list: Existing[]) {
+  const today = new Date();
+  let m = mondayOf(isSunday(today) ? addDays(today, 1) : today);
+  for (let i = 0; i < 52 && findExisting(list, m); i++) m = addDays(m, 7);
+  return m;
+}
+
 export function WeekPicker({
   monday,
   onChange,
@@ -84,6 +92,8 @@ export function WeekPicker({
   excludeId?: string | undefined;
 }) {
   const [month, setMonth] = useState(monday);
+  const key = monday.getTime();
+  useEffect(() => setMonth(monday), [key]); // eslint-disable-line react-hooks/exhaustive-deps
   const { data: existing = [] } = useExistingWeeks();
   const info = weekInfo(monday);
   const dup = findExisting(existing, monday, excludeId);

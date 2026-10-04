@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { flush } from "@/lib/goals";
-import { WeekPicker, findExisting, mondayOf, useExistingWeeks, weekInfo } from "@/components/WeekPicker";
+import { WeekPicker, defaultMonday, findExisting, mondayOf, useExistingWeeks, weekInfo } from "@/components/WeekPicker";
 
 export function NewWeekDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
   const [monday, setMonday] = useState(() => mondayOf(new Date()));
@@ -21,6 +21,10 @@ export function NewWeekDialog({ open, onOpenChange }: { open: boolean; onOpenCha
   const navigate = useNavigate();
   const { data: existing = [] } = useExistingWeeks();
   const dup = findExisting(existing, monday);
+  const [touched, setTouched] = useState(false);
+  useEffect(() => {
+    if (open && !touched) pick(defaultMonday(existing));
+  }, [open, existing]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pick = (m: Date) => {
     setMonday(m);
@@ -59,17 +63,17 @@ export function NewWeekDialog({ open, onOpenChange }: { open: boolean; onOpenCha
     <Dialog
       open={open}
       onOpenChange={(o) => {
-        if (o) pick(mondayOf(new Date()));
+        if (o) setTouched(false);
         onOpenChange(o);
       }}
     >
-      <DialogContent className="max-h-[92vh] overflow-y-auto rounded-2xl">
+      <DialogContent className="max-h-[95dvh] overflow-y-auto rounded-2xl p-4 sm:p-6">
         <form onSubmit={submit} className="space-y-4">
           <DialogHeader>
             <DialogTitle>Nueva semana</DialogTitle>
             <DialogDescription>Se copiarán todas tus metas actuales, sin marcar.</DialogDescription>
           </DialogHeader>
-          <WeekPicker monday={monday} onChange={pick} />
+          <WeekPicker monday={monday} onChange={(m) => { setTouched(true); pick(m); }} />
           <div className="space-y-2">
             <Label htmlFor="nw-label">Etiqueta</Label>
             <Input id="nw-label" className="h-12 text-base" value={label} onChange={(e) => setLabel(e.target.value)} />
