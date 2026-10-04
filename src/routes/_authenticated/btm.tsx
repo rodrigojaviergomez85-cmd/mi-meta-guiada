@@ -22,12 +22,12 @@ import {
 } from "@/lib/btm-utils";
 import { cn } from "@/lib/utils";
 
-type Search = { view?: "day" | "week"; date?: string };
+type Search = { view?: "day" | "week" | undefined; date?: string | undefined };
 
 export const Route = createFileRoute("/_authenticated/btm")({
   validateSearch: (s: Record<string, unknown>): Search => ({
-    view: s.view === "week" ? "week" : undefined,
-    date: isDateKey(s.date) ? s.date : undefined,
+    view: s["view"] === "week" ? "week" : undefined,
+    date: isDateKey(s["date"]) ? s["date"] : undefined,
   }),
   head: () => ({
     meta: [
