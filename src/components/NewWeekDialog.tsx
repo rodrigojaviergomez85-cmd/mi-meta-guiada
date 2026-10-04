@@ -23,6 +23,9 @@ export function NewWeekDialog({ open, onOpenChange }: { open: boolean; onOpenCha
   const dup = findExisting(existing, monday);
   const [touched, setTouched] = useState(false);
   useEffect(() => {
+    if (!open) setTouched(false);
+  }, [open]);
+  useEffect(() => {
     if (open && !touched) pick(defaultMonday(existing));
   }, [open, existing]); // eslint-disable-line react-hooks/exhaustive-deps
 
