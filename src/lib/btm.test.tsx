@@ -76,6 +76,7 @@ describe("BTM queue + UI", () => {
     qc.setQueryData(dayQK(A, D2), empty(D2));
     const { rerender } = render(<DayHarness uid={A} day={D1} qc={qc} />, { wrapper: wrap(qc) });
     fireEvent.click(screen.getByText("set60")); // duration chosen
+    await tick(10); // let the cache update reach the UI
     fireEvent.change(screen.getByLabelText("Prioridad A1"), { target: { value: "Recepción" } });
     // switch date well before the 800 ms network debounce
     await tick(100);
@@ -241,7 +242,8 @@ describe("BTM queue + UI", () => {
     setBtmUser(A);
     const { supabase } = await import("@/test/fakeSupabase");
     const spy = vi.spyOn(supabase, "from").mockImplementation((() => {
-      const b: Record<string, unknown> = {};
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const b: any = {};
       for (const m of ["select", "eq", "neq", "gte", "lte"]) b[m] = () => b;
       b.then = (r: (x: unknown) => unknown) => Promise.resolve({ data: null, error: { message: "boom" } }).then(r);
       return b;

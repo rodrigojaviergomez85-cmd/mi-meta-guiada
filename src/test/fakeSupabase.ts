@@ -19,7 +19,8 @@ function builder(table: string) {
   let kind: "select" | "upsert" | "delete" = "select";
   let payload: unknown;
   let single = false;
-  const b: Record<string, unknown> = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const b: any = {};
   for (const m of ["select", "eq", "neq", "gte", "lte"]) {
     b[m] = (...a: unknown[]) => {
       if (m !== "select") filters.push([m, ...a]);
