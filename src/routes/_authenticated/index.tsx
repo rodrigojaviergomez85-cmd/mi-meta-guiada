@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { History, LogOut, Plus } from "lucide-react";
+import { ChevronRight, ClipboardList, History, LogOut, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -115,6 +115,18 @@ function Home() {
           <CompanyCards goals={data.goals} />
         </>
       )}
+
+      <Link
+        to="/btm"
+        className="flex min-h-16 items-center gap-3 rounded-2xl bg-card p-4 shadow-soft transition hover:shadow-md"
+      >
+        <ClipboardList className="h-6 w-6 shrink-0 text-primary" />
+        <span className="min-w-0 flex-1">
+          <span className="block font-display text-lg font-semibold">BTM</span>
+          <span className="block text-sm text-muted-foreground">Planeación semanal y diaria</span>
+        </span>
+        <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
+      </Link>
 
       <Link to="/historial" className="inline-flex min-h-11 items-center gap-2 font-medium text-muted-foreground hover:text-foreground">
         <History className="h-5 w-5" /> Historial
