@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedBtmRouteImport } from './routes/_authenticated/btm'
 import { Route as AuthenticatedCCompanyRouteImport } from './routes/_authenticated/c.$company'
 import { Route as AuthenticatedHistorialIndexRouteImport } from './routes/_authenticated/historial.index'
 import { Route as AuthenticatedHistorialSnapshotIdRouteImport } from './routes/_authenticated/historial.$snapshotId'
@@ -28,6 +29,11 @@ const LoginRoute = LoginRouteImport.update({
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBtmRoute = AuthenticatedBtmRouteImport.update({
+  id: '/btm',
+  path: '/btm',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedCCompanyRoute = AuthenticatedCCompanyRouteImport.update({
@@ -51,12 +57,14 @@ const AuthenticatedHistorialSnapshotIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
+  '/btm': typeof AuthenticatedBtmRoute
   '/c/$company': typeof AuthenticatedCCompanyRoute
   '/historial/$snapshotId': typeof AuthenticatedHistorialSnapshotIdRoute
   '/historial/': typeof AuthenticatedHistorialIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
+  '/btm': typeof AuthenticatedBtmRoute
   '/': typeof AuthenticatedIndexRoute
   '/c/$company': typeof AuthenticatedCCompanyRoute
   '/historial/$snapshotId': typeof AuthenticatedHistorialSnapshotIdRoute
@@ -66,6 +74,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/login': typeof LoginRoute
+  '/_authenticated/btm': typeof AuthenticatedBtmRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/c/$company': typeof AuthenticatedCCompanyRoute
   '/_authenticated/historial/$snapshotId': typeof AuthenticatedHistorialSnapshotIdRoute
@@ -74,13 +83,25 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/login' | '/c/$company' | '/historial/$snapshotId' | '/historial/'
+    | '/'
+    | '/login'
+    | '/btm'
+    | '/c/$company'
+    | '/historial/$snapshotId'
+    | '/historial/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/' | '/c/$company' | '/historial/$snapshotId' | '/historial'
+  to:
+    | '/login'
+    | '/btm'
+    | '/'
+    | '/c/$company'
+    | '/historial/$snapshotId'
+    | '/historial'
   id:
     | '__root__'
     | '/_authenticated'
     | '/login'
+    | '/_authenticated/btm'
     | '/_authenticated/'
     | '/_authenticated/c/$company'
     | '/_authenticated/historial/$snapshotId'
@@ -115,6 +136,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/btm': {
+      id: '/_authenticated/btm'
+      path: '/btm'
+      fullPath: '/btm'
+      preLoaderRoute: typeof AuthenticatedBtmRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/c/$company': {
       id: '/_authenticated/c/$company'
       path: '/c/$company'
@@ -140,6 +168,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedBtmRoute: typeof AuthenticatedBtmRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedCCompanyRoute: typeof AuthenticatedCCompanyRoute
   AuthenticatedHistorialSnapshotIdRoute: typeof AuthenticatedHistorialSnapshotIdRoute
@@ -147,6 +176,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedBtmRoute: AuthenticatedBtmRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedCCompanyRoute: AuthenticatedCCompanyRoute,
   AuthenticatedHistorialSnapshotIdRoute: AuthenticatedHistorialSnapshotIdRoute,
