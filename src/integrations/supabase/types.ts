@@ -14,6 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
+      btm_blocks: {
+        Row: {
+          activity: string
+          day: string
+          end_time: string
+          id: string
+          start_time: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity?: string
+          day: string
+          end_time: string
+          id?: string
+          start_time: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          activity?: string
+          day?: string
+          end_time?: string
+          id?: string
+          start_time?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      btm_days: {
+        Row: {
+          day: string
+          follow_up: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          day: string
+          follow_up?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          day?: string
+          follow_up?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      btm_priorities: {
+        Row: {
+          done: boolean
+          minutes: number | null
+          position: number
+          ref_date: string
+          scope: string
+          text: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          done?: boolean
+          minutes?: number | null
+          position: number
+          ref_date: string
+          scope: string
+          text?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          done?: boolean
+          minutes?: number | null
+          position?: number
+          ref_date?: string
+          scope?: string
+          text?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       goal_comments: {
         Row: {
           body: string
