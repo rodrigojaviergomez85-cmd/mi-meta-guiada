@@ -203,7 +203,7 @@ export async function flushBtm() {
   setStatus(hasRejected(map) ? "error" : Object.keys(map).length ? "pending" : "saved");
 }
 
-if (typeof window !== "undefined" && !import.meta.env.VITEST) {
+if (typeof window !== "undefined" && import.meta.env.MODE !== "test") {
   window.addEventListener("online", () => void flushBtm());
   window.addEventListener("pagehide", () => currentUser && persist(currentUser, pending));
   void supabase.auth.getSession().then(({ data }) => setBtmUser(data.session?.user.id ?? null));

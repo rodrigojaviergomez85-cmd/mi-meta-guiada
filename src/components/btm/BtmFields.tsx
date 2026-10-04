@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -40,30 +40,19 @@ export function BtmStatusBadge() {
   );
 }
 
-/** Debounced text that always saves with the identity captured when it mounted (keyed by date). */
-function useDebounced(initial: string, save: (v: string) => void, ms = 800) {
+/**
+ * Text field state that saves on every change: the edit is queued locally at once (durable if the tab closes);
+ * only the network write is debounced inside the queue. Nothing is written on unmount, so a deleted row can't come back.
+ */
+function useLiveText(initial: string, save: (v: string) => void) {
   const [v, setV] = useState(initial);
-  const latest = useRef(initial);
-  const dirty = useRef(false);
   const saveRef = useRef(save);
   saveRef.current = save;
-  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const commit = () => {
-    clearTimeout(timer.current);
-    if (dirty.current) {
-      dirty.current = false;
-      saveRef.current(latest.current);
-    }
-  };
-  useEffect(() => () => commit(), []); // eslint-disable-line react-hooks/exhaustive-deps
   const change = (nv: string) => {
     setV(nv);
-    latest.current = nv;
-    dirty.current = true;
-    clearTimeout(timer.current);
-    timer.current = setTimeout(commit, ms);
+    saveRef.current(nv);
   };
-  return { v, change, commit };
+  return { v, change };
 }
 
 function DurationSelect({ value, onChange, id }: { value: number | null; onChange: (m: number | null) => void; id: string }) {
@@ -125,7 +114,7 @@ function PriorityRow({ row, onSave }: { row: Priority; onSave: (r: Priority) => 
   const ident = useRef(row);
   const cur = useRef(row);
   cur.current = row;
-  const t = useDebounced(row.text, (text) => onSave({ ...cur.current, ...pick(ident.current), text }));
+  const t = useLiveText(row.text, (text) => onSave({ ...cur.current, ...pick(ident.current), text }));
   const id = `p-${row.scope}-${row.ref_date}-${row.position}`;
   return (
     <li className="flex items-start gap-2 py-1">
@@ -134,7 +123,7 @@ function PriorityRow({ row, onSave }: { row: Priority; onSave: (r: Priority) => 
         <Checkbox
           aria-label={`Prioridad A${row.position} completada`}
           checked={row.done}
-          onCheckedChange={(c) => onSave({ ...row, text: t.v, done: !!c })}
+          onCheckedChange={(c) => onSave({ ...cur.current, ...pick(ident.current), text: t.v, done: !!c })}
           className="h-5 w-5"
         />
       </div>
@@ -144,13 +133,12 @@ function PriorityRow({ row, onSave }: { row: Priority; onSave: (r: Priority) => 
         value={t.v}
         placeholder="Actividad"
         onChange={(e) => t.change(e.target.value)}
-        onBlur={t.commit}
         className={cn(
           "field-sizing-content min-h-11 min-w-0 flex-1 resize-none py-2.5 text-base",
           row.done && "text-muted-foreground line-through",
         )}
       />
-      <DurationSelect id={id} value={row.minutes} onChange={(m) => onSave({ ...row, text: t.v, minutes: m })} />
+      <DurationSelect id={id} value={row.minutes} onChange={(m) => onSave({ ...cur.current, ...pick(ident.current), text: t.v, minutes: m })} />
     </li>
   );
 }
@@ -191,7 +179,8 @@ export function PriorityList({
 }
 
 export function FollowUp({ day, value, onSave }: { day: string; value: string; onSave: (day: string, v: string) => void }) {
-  const t = useDebounced(value, (v) => onSave(day, v)); // `day` captured at mount (parent keys by day)
+  const dayRef = useRef(day); // captured at mount (parent keys by day)
+  const t = useLiveText(value, (v) => onSave(dayRef.current, v));
   return (
     <section className="rounded-2xl bg-card p-4 shadow-soft">
       <label htmlFor={`fu-${day}`} className="mb-2 block font-display text-lg font-semibold">
@@ -201,7 +190,6 @@ export function FollowUp({ day, value, onSave }: { day: string; value: string; o
         id={`fu-${day}`}
         value={t.v}
         onChange={(e) => t.change(e.target.value)}
-        onBlur={t.commit}
         placeholder="Follow up…"
         className="field-sizing-content min-h-20 text-base"
       />
@@ -216,7 +204,7 @@ function BlockRow({ block, onSave, onDelete }: { block: Block; onSave: (b: Block
   const times = useRef({ start, end });
   times.current = { start, end };
   const err = blockError(start, end);
-  const act = useDebounced(block.activity, (activity) => {
+  const act = useLiveText(block.activity, (activity) => {
     const { start: s, end: e } = times.current;
     if (!blockError(s, e)) onSave({ ...ident.current, start_time: s, end_time: e, activity });
   });
@@ -240,7 +228,7 @@ function BlockRow({ block, onSave, onDelete }: { block: Block; onSave: (b: Block
           {err} — no se guardará hasta corregirlo.
         </p>
       )}
-      <Input aria-label="Actividad" value={act.v} placeholder="Actividad" onChange={(e) => act.change(e.target.value)} onBlur={act.commit} className="h-11 text-base" />
+      <Input aria-label="Actividad" value={act.v} placeholder="Actividad" onChange={(e) => act.change(e.target.value)} className="h-11 text-base" />
     </li>
   );
 }
