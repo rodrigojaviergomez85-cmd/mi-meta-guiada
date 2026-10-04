@@ -20,6 +20,7 @@ import {
   storageKey,
   subscribeBtm,
   useBtmMutations,
+  useDayPlan,
   type BtmStatus,
   type DayPlan,
 } from "./btm";
@@ -53,9 +54,9 @@ afterEach(() => {
 });
 
 /** Real UI pieces wired to the real hooks, the real queue and the fake API. */
-function DayHarness({ uid, day, qc }: { uid: string; day: string; qc: QueryClient }) {
+function DayHarness({ uid, day }: { uid: string; day: string; qc: QueryClient }) {
   const m = useBtmMutations(uid);
-  const data = qc.getQueryData<DayPlan>(dayQK(uid, day))!;
+  const data = useDayPlan(uid, day).data!; // subscribed to the cache, as in the app
   return (
     <div key={day}>
       <PriorityList scope="day" refDate={day} priorities={data.priorities} onSave={m.savePriority} />
