@@ -43,7 +43,10 @@ function ResetPage() {
     setBusy(true);
     const { error } = await supabase.auth.updateUser({ password: pw });
     setBusy(false);
-    if (error) return toast.error("No se pudo cambiar: " + error.message);
+    if (error) {
+      toast.error("No se pudo cambiar: " + error.message);
+      return;
+    }
     toast.success("Contraseña actualizada");
     navigate({ to: "/", replace: true });
   };
