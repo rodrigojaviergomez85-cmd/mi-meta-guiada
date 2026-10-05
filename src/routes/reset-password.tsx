@@ -36,7 +36,10 @@ function ResetPage() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (pw !== pw2) return toast.error("Las contraseñas no coinciden");
+    if (pw !== pw2) {
+      toast.error("Las contraseñas no coinciden");
+      return;
+    }
     setBusy(true);
     const { error } = await supabase.auth.updateUser({ password: pw });
     setBusy(false);
