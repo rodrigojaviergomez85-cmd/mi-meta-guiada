@@ -98,6 +98,25 @@ function LoginPage() {
           <Button type="submit" className="h-12 w-full text-base" disabled={busy}>
             {busy ? "…" : mode === "in" ? "Entrar" : "Crear cuenta"}
           </Button>
+          {mode === "in" && (
+            <button
+              type="button"
+              className="min-h-11 w-full text-sm text-muted-foreground underline-offset-4 hover:underline"
+              onClick={async () => {
+                if (email.trim().toLowerCase() !== OWNER_EMAIL) {
+                  toast.error("Escribe tu correo arriba primero");
+                  return;
+                }
+                const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+                  redirectTo: `${window.location.origin}/reset-password`,
+                });
+                if (error) toast.error("No se pudo enviar el correo. Intenta de nuevo en un minuto.");
+                else toast.success("Te enviamos un correo para cambiar tu contraseña");
+              }}
+            >
+              ¿Olvidaste tu contraseña?
+            </button>
+          )}
           {canSignUp && (
             <button
               type="button"
