@@ -5,7 +5,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useCommentCounts } from "@/lib/people";
 import { GoalRow } from "./GoalRow";
-import { LEVELS, companyInfo, goalsFor, levelTitle, type Company, type SnapshotData, type Goal, type Level } from "@/lib/goals";
+import { shiftedPosition } from "./PositionBadge";
+import { LEVELS, companyInfo, flush, goalsFor, levelTitle, type Company, type SnapshotData, type Goal, type Level } from "@/lib/goals";
 import type { GoalPatch } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
 
@@ -65,6 +66,20 @@ export function CompanyGoals({
     void qc.invalidateQueries();
   };
 
+  const moveGoal = async (goal: Goal, to: number) => {
+    const from = goal.position;
+    if (to === from) return;
+    await flush(); // send pending text first so nothing is lost
+    update((goals) =>
+      goals.map((x) =>
+        x.company === goal.company && x.level === goal.level ? { ...x, position: shiftedPosition(x.position, from, to) } : x,
+      ),
+    );
+    const { error } = await supabase.rpc("move_goal", { _id: goal.id, _new_pos: to });
+    if (error) toast.error("No se pudo cambiar el orden");
+    void qc.invalidateQueries();
+  };
+
   const [open, setOpen] = useState<Record<string, boolean>>({ annual: true, monthly: true, weekly: true });
 
   return (
@@ -108,6 +123,8 @@ export function CompanyGoals({
                     autoEdit={g.id === autoEditId}
                     commentCount={counts[g.id] ?? 0}
                     onDelete={!readOnly && goals.length > 1 ? () => void deleteGoal(g) : undefined}
+                    total={goals.length}
+                    onMove={readOnly ? undefined : (to) => void moveGoal(g, to)}
                   />
                 ))}
               </ul>
