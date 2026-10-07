@@ -487,6 +487,11 @@ export type Database = {
       has_any_user: { Args: never; Returns: boolean }
       is_owner: { Args: never; Returns: boolean }
       make_current: { Args: { _id: string }; Returns: undefined }
+      move_company_issue_item: {
+        Args: { _id: string; _new_pos: number }
+        Returns: undefined
+      }
+      move_goal: { Args: { _id: string; _new_pos: number }; Returns: undefined }
       seed_if_empty: { Args: never; Returns: undefined }
     }
     Enums: {
