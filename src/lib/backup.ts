@@ -19,7 +19,8 @@ async function all<T>(table: string, order: string): Promise<T[]> {
   }
 }
 
-type R = Record<string, any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type R = any;
 
 /** Downloads an Excel file with all of the user's data (one sheet per area). */
 export async function downloadBackup() {
