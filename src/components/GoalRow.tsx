@@ -14,6 +14,7 @@ import type { GoalPatch } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
 import { AssigneeChip } from "./AssigneeChip";
 import { CommentsChip } from "./CommentsChip";
+import { PositionBadge } from "./PositionBadge";
 
 export function GoalRow({
   goal,
@@ -23,6 +24,8 @@ export function GoalRow({
   onDelete,
   autoEdit,
   commentCount = 0,
+  total = 1,
+  onMove,
 }: {
   goal: Goal;
   color: string;
@@ -31,6 +34,8 @@ export function GoalRow({
   onDelete?: (() => void) | undefined;
   autoEdit?: boolean | undefined;
   commentCount?: number | undefined;
+  total?: number | undefined;
+  onMove?: ((to: number) => void) | undefined;
 }) {
   const [editing, setEditing] = useState(!!autoEdit && !readOnly);
   const [confirm, setConfirm] = useState(false);
@@ -85,11 +90,13 @@ export function GoalRow({
 
   return (
     <li className="group flex items-start gap-3 py-2">
-      <span
-        className="mt-2.5 grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-bold"
-        style={{ backgroundColor: `color-mix(in oklch, ${color} 15%, transparent)`, color }}
-      >
-        {goal.position}
+      <span className={cn("shrink-0", onMove && total > 1 && "mt-2.5")}>
+        <PositionBadge
+          position={goal.position}
+          total={total}
+          onMove={readOnly ? undefined : onMove}
+          style={{ backgroundColor: `color-mix(in oklch, ${color} 15%, transparent)`, color }}
+        />
       </span>
       <button
         type="button"

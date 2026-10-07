@@ -27,6 +27,8 @@ import {
 import type { Company } from "@/lib/goals";
 import { cn } from "@/lib/utils";
 import { CommentThreadChip } from "./CommentsChip";
+import { PositionBadge, shiftedPosition } from "./PositionBadge";
+import { supabase } from "@/integrations/supabase/client";
 import { shortDate } from "@/lib/btm-utils";
 
 type SaveState = "idle" | "pending" | "saving" | "saved" | "error";
@@ -40,7 +42,11 @@ function IssueRow({
   onSaved,
   commentCount,
   countKey,
+  total,
+  onMove,
 }: {
+  total: number;
+  onMove: (to: number) => void;
   commentCount: number;
   countKey: readonly unknown[];
   item: CompanyIssueItem;
@@ -129,8 +135,8 @@ function IssueRow({
 
   return (
     <li className="group flex items-start gap-3 border-b py-2 last:border-b-0">
-      <span className="mt-2.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
-        {item.position}
+      <span className={cn("shrink-0", total > 1 && "mt-2.5")}>
+        <PositionBadge position={item.position} total={total} onMove={onMove} className="bg-muted text-muted-foreground" />
       </span>
       <div className="min-w-0 flex-1">
         <textarea
@@ -255,6 +261,19 @@ export function CompanyIssues({
     }
   };
 
+  const move = async (item: CompanyIssueItem, to: number) => {
+    const from = item.position;
+    if (to === from) return;
+    qc.setQueryData<CompanyIssueItem[]>(key, (current = []) =>
+      current
+        .map((e) => ({ ...e, position: shiftedPosition(e.position, from, to) }))
+        .sort((a, b) => a.position - b.position),
+    );
+    const { error } = await supabase.rpc("move_company_issue_item", { _id: item.id, _new_pos: to });
+    if (error) toast.error("No se pudo cambiar el orden");
+    await qc.invalidateQueries({ queryKey: key });
+  };
+
   return (
     <section className="overflow-hidden rounded-2xl bg-card shadow-soft">
       <div className="flex min-h-14 items-center justify-between px-4 py-3" style={{ borderLeft: `4px solid ${color}` }}>
@@ -277,6 +296,8 @@ export function CompanyIssues({
                 onSaved={() => void qc.invalidateQueries({ queryKey: key })}
                 commentCount={counts[item.id] ?? 0}
                 countKey={[...countKey, ids.join(",")]}
+                total={items.length}
+                onMove={(to) => void move(item, to)}
               />
             ))}
           </ol>
