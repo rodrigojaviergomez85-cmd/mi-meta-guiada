@@ -15,3 +15,4 @@
 - New week / seeding / make-current are SQL RPCs (`create_new_week`, `seed_if_empty`, `make_current`); why: atomic copy of 45 goals.
 - BTM planner (`/btm`) uses its own localStorage queue in `src/lib/btm.ts`, with upserts keyed by natural identity (user+scope+date+slot, block id); why: an edit always lands on the date it was typed for, and it's independent of goals/snapshots.
 - BTM dates are local "YYYY-MM-DD" strings via `src/lib/btm-utils.ts` (never toISOString); why: avoids UTC day shifts.
+- Company issues are stored once per snapshot and company in `company_issues`; why: they stay beside annual goals and remain historically scoped to that week.
