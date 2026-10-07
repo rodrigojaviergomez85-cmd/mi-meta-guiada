@@ -98,6 +98,41 @@ export type Database = {
         }
         Relationships: []
       }
+      company_issue_items: {
+        Row: {
+          company: Database["public"]["Enums"]["goal_company"]
+          id: string
+          position: number
+          snapshot_id: string
+          text: string
+          updated_at: string
+        }
+        Insert: {
+          company: Database["public"]["Enums"]["goal_company"]
+          id?: string
+          position: number
+          snapshot_id: string
+          text?: string
+          updated_at?: string
+        }
+        Update: {
+          company?: Database["public"]["Enums"]["goal_company"]
+          id?: string
+          position?: number
+          snapshot_id?: string
+          text?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_issue_items_snapshot_id_fkey"
+            columns: ["snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "snapshots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_issues: {
         Row: {
           body: string
@@ -314,6 +349,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_company_issue_item: {
+        Args: {
+          _company: Database["public"]["Enums"]["goal_company"]
+          _snapshot_id: string
+        }
+        Returns: {
+          company: Database["public"]["Enums"]["goal_company"]
+          id: string
+          position: number
+          snapshot_id: string
+          text: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "company_issue_items"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       add_goal: {
         Args: {
           _company: Database["public"]["Enums"]["goal_company"]
@@ -355,6 +410,7 @@ export type Database = {
             }
             Returns: string
           }
+      delete_company_issue_item: { Args: { _id: string }; Returns: undefined }
       delete_goal: { Args: { _id: string }; Returns: undefined }
       has_any_user: { Args: never; Returns: boolean }
       is_owner: { Args: never; Returns: boolean }
