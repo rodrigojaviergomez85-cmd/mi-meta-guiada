@@ -3,7 +3,10 @@ import type { Tables } from "@/integrations/supabase/types";
 
 export type Idea = Tables<"ideas">;
 export type IdeaCategory = "personal" | "e4kids" | "e4cc" | "otros";
-export type IdeaPatch = Partial<Pick<Idea, "text" | "done" | "category" | "idea_date">>;
+export type IdeaPatch = Partial<Pick<Idea, "text" | "done" | "category" | "idea_date">> & { table_data?: string[][] | null };
+export const newTable = (): string[][] => Array.from({ length: 3 }, () => ["", "", ""]);
+export const asTable = (v: unknown): string[][] | null =>
+  Array.isArray(v) && v.every((r) => Array.isArray(r)) ? (v as unknown[][]).map((r) => r.map((c) => String(c ?? ""))) : null;
 
 export const CATEGORIES: { id: IdeaCategory; name: string; color: string }[] = [
   { id: "personal", name: "Personal", color: "var(--personal)" },
@@ -41,7 +44,8 @@ function clearPending(uid: string, id: string, sent: IdeaPatch) {
   const v = readPending(uid);
   const cur = v[id];
   if (!cur) return;
-  for (const k of Object.keys(sent) as (keyof IdeaPatch)[]) if (cur[k] === sent[k]) delete cur[k];
+  for (const k of Object.keys(sent) as (keyof IdeaPatch)[])
+    if (JSON.stringify(cur[k]) === JSON.stringify(sent[k])) delete cur[k];
   if (!Object.keys(cur).length) delete v[id];
   writePending(uid, v);
 }
@@ -60,7 +64,7 @@ export async function fetchIdeas(uid: string): Promise<Idea[]> {
   const { data, error } = await supabase.from("ideas").select("*").eq("user_id", uid);
   if (error) throw error;
   const p = readPending(uid);
-  return (data ?? []).map((i) => (p[i.id] ? { ...i, ...p[i.id] } : i));
+  return (data ?? []).map((i) => (p[i.id] ? ({ ...i, ...p[i.id] } as Idea) : i));
 }
 
 export async function saveIdea(uid: string, id: string, patch: IdeaPatch) {

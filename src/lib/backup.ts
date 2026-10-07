@@ -67,7 +67,7 @@ export async function downloadBackup() {
       Fecha: b.day, Inicio: b.start_time.slice(0, 5), Fin: b.end_time.slice(0, 5), Actividad: b.activity,
     }))],
     ["BTM Seguimiento", days.filter((d) => d.follow_up.trim()).map((d) => ({ Fecha: d.day, Seguimiento: d.follow_up }))],
-    ["Ideas", [...ideas].reverse().map((i) => ({ Fecha: i.idea_date, Categoría: ({ personal: "Personal", e4kids: "E4Kids", e4cc: "E4CC", otros: "Otros" } as R)[i.category], Idea: i.text, Hecha: i.done ? "Sí" : "No" }))],
+    ["Ideas", [...ideas].reverse().map((i) => ({ Fecha: i.idea_date, Categoría: ({ personal: "Personal", e4kids: "E4Kids", e4cc: "E4CC", otros: "Otros" } as R)[i.category], Idea: i.text, Tabla: Array.isArray(i.table_data) ? i.table_data.map((r: string[]) => r.join(" | ")).join("\n") : "", Hecha: i.done ? "Sí" : "No" }))],
     ["Personas", people.map((p) => ({ Nombre: p.name, Activa: p.active ? "Sí" : "No" }))],
   ];
 
