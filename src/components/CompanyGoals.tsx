@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState, type ReactNode } from "react";
 import { ChevronDown, Plus } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -16,6 +16,8 @@ export function CompanyGoals({
   onPatch,
   showTitle,
   assigneeFilter = "all",
+  annualAside,
+  annualAsideBeside = true,
 }: {
   data: SnapshotData;
   company: Company;
@@ -23,6 +25,8 @@ export function CompanyGoals({
   onPatch: (goal: Goal, patch: GoalPatch) => void;
   showTitle?: boolean;
   assigneeFilter?: string;
+  annualAside?: ReactNode;
+  annualAsideBeside?: boolean;
 }) {
   const info = companyInfo(company)!;
   const qc = useQueryClient();
@@ -74,8 +78,8 @@ export function CompanyGoals({
       {LEVELS.map((level) => {
         const goals = goalsFor(data.goals, company, level);
         const done = goals.filter((g) => g.done).length;
-        return (
-          <section key={level} className="overflow-hidden rounded-2xl bg-card shadow-soft">
+        const section = (
+          <section className="overflow-hidden rounded-2xl bg-card shadow-soft">
             <button
               type="button"
               onClick={() => setOpen((o) => ({ ...o, [level]: !o[level] }))}
@@ -120,6 +124,16 @@ export function CompanyGoals({
               </div>
             )}
           </section>
+        );
+        return (
+          <Fragment key={level}>
+            {level === "annual" && annualAside ? (
+              <div className={cn("grid items-start gap-4", annualAsideBeside && "lg:grid-cols-2")}>
+                {section}
+                {annualAside}
+              </div>
+            ) : section}
+          </Fragment>
         );
       })}
     </div>

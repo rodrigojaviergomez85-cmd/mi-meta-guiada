@@ -16,6 +16,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { CompanyGoals } from "@/components/CompanyGoals";
+import { CompanyIssues } from "@/components/CompanyIssues";
 import { SnapshotBar } from "@/components/SnapshotBar";
 import { CompanyCards } from "@/components/CompanyCards";
 import { COMPANIES } from "@/lib/goals";
@@ -35,6 +36,7 @@ export const Route = createFileRoute("/_authenticated/historial/$snapshotId")({
 
 function SnapshotView() {
   const { snapshotId } = Route.useParams();
+  const { user } = Route.useRouteContext();
   const { data, isLoading, error } = useSnapshot(snapshotId);
   const qc = useQueryClient();
   const navigate = useNavigate();
@@ -103,7 +105,23 @@ function SnapshotView() {
           <CompanyCards goals={data.goals} linkable={false} />
           <div className="grid gap-8 lg:grid-cols-3 lg:gap-5">
             {COMPANIES.map((c) => (
-              <CompanyGoals key={c.id} data={data} company={c.id} readOnly onPatch={() => {}} showTitle />
+              <CompanyGoals
+                key={c.id}
+                data={data}
+                company={c.id}
+                readOnly
+                onPatch={() => {}}
+                showTitle
+                annualAside={
+                  <CompanyIssues
+                    userId={user.id}
+                    snapshotId={data.snapshot.id}
+                    company={c.id}
+                    color={c.color}
+                    readOnly
+                  />
+                }
+              />
             ))}
           </div>
         </>
