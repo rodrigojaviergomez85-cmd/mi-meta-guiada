@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, Columns3 } from "lucide-react";
 import { CompanyGoals } from "@/components/CompanyGoals";
+import { CompanyIssues } from "@/components/CompanyIssues";
 import { SaveIndicator } from "@/components/SaveIndicator";
 import { Button } from "@/components/ui/button";
 import { COMPANIES, companyInfo, type Company } from "@/lib/goals";
@@ -31,6 +32,7 @@ export const Route = createFileRoute("/_authenticated/c/$company")({
 function CompanyPage() {
   const { company } = Route.useParams();
   const info = companyInfo(company)!;
+  const { user } = Route.useRouteContext();
   const { data, isLoading } = useCurrent();
   const onPatch = usePatchGoal(currentKey);
   const [full, setFull] = useState(false);
@@ -84,11 +86,39 @@ function CompanyPage() {
         (full ? (
           <div className="grid grid-cols-3 gap-5">
             {COMPANIES.map((c) => (
-              <CompanyGoals key={c.id} data={data} company={c.id} onPatch={onPatch} showTitle assigneeFilter={filter} />
+              <CompanyGoals
+                key={c.id}
+                data={data}
+                company={c.id}
+                onPatch={onPatch}
+                showTitle
+                assigneeFilter={filter}
+                annualAside={
+                  <CompanyIssues
+                    userId={user.id}
+                    snapshotId={data.snapshot.id}
+                    company={c.id}
+                    color={c.color}
+                  />
+                }
+              />
             ))}
           </div>
         ) : (
-          <CompanyGoals data={data} company={company as Company} onPatch={onPatch} assigneeFilter={filter} />
+          <CompanyGoals
+            data={data}
+            company={company as Company}
+            onPatch={onPatch}
+            assigneeFilter={filter}
+            annualAside={
+              <CompanyIssues
+                userId={user.id}
+                snapshotId={data.snapshot.id}
+                company={company as Company}
+                color={info.color}
+              />
+            }
+          />
         ))}
 
       <nav
