@@ -43,6 +43,13 @@
       "when": 1791119223622,
       "tag": "0005_btm_planner",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791373573477,
+      "tag": "0006_company_issues_priorities",
+      "breakpoints": true
     }
   ]
 }

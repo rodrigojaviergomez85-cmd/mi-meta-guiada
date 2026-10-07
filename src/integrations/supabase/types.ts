@@ -98,6 +98,38 @@ export type Database = {
         }
         Relationships: []
       }
+      company_issues: {
+        Row: {
+          body: string
+          company: Database["public"]["Enums"]["goal_company"]
+          id: string
+          snapshot_id: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          company: Database["public"]["Enums"]["goal_company"]
+          id?: string
+          snapshot_id: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          company?: Database["public"]["Enums"]["goal_company"]
+          id?: string
+          snapshot_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_issues_snapshot_id_fkey"
+            columns: ["snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "snapshots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       goal_comments: {
         Row: {
           body: string
