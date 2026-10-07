@@ -17,12 +17,17 @@ import {
   companyIssueKey,
   deleteCompanyIssueItem,
   fetchCompanyIssueItems,
+  fetchIssueCommentCounts,
+  issueCommentCountsKey,
+  saveCompanyIssueDate,
   persistCompanyIssueItem,
   saveCompanyIssueItem,
   type CompanyIssueItem,
 } from "@/lib/company-issues";
 import type { Company } from "@/lib/goals";
 import { cn } from "@/lib/utils";
+import { CommentThreadChip } from "./CommentsChip";
+import { shortDate } from "@/lib/btm-utils";
 
 type SaveState = "idle" | "pending" | "saving" | "saved" | "error";
 
@@ -33,7 +38,11 @@ function IssueRow({
   autoFocus,
   onDelete,
   onSaved,
+  commentCount,
+  countKey,
 }: {
+  commentCount: number;
+  countKey: readonly unknown[];
   item: CompanyIssueItem;
   userId: string;
   readOnly: boolean;
@@ -44,6 +53,7 @@ function IssueRow({
   const [text, setText] = useState(item.text);
   const [state, setState] = useState<SaveState>("idle");
   const [confirm, setConfirm] = useState(false);
+  const [date, setDate] = useState(item.item_date ?? "");
   const ref = useRef<HTMLTextAreaElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const latest = useRef(item.text);
@@ -86,13 +96,33 @@ function IssueRow({
     [],
   );
 
+  const source = { table: "issue_item_comments" as const, fk: "item_id" as const, parentId: item.id, countKey };
+  const changeDate = async (v: string) => {
+    if (!v) return;
+    const prev = date;
+    setDate(v);
+    try {
+      await saveCompanyIssueDate(userId, item.id, v);
+      onSaved();
+    } catch {
+      setDate(prev);
+      toast.error("No se pudo guardar la fecha.");
+    }
+  };
+
   if (readOnly) {
     return (
       <li className="flex gap-3 border-b py-3 last:border-b-0">
         <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
           {item.position}
         </span>
-        <p className="min-w-0 flex-1 whitespace-pre-wrap break-words text-base leading-relaxed">{text || "—"}</p>
+        <div className="min-w-0 flex-1">
+          <p className="whitespace-pre-wrap break-words text-base leading-relaxed">{text || "—"}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            {date && <span className="text-xs text-muted-foreground">{shortDate(date)}</span>}
+            <CommentThreadChip source={source} title={text || "Sin texto"} count={commentCount} readOnly />
+          </div>
+        </div>
       </li>
     );
   }
@@ -138,6 +168,16 @@ function IssueRow({
           {state === "saved" && <><Check className="h-3 w-3" /> Guardado</>}
           {state === "error" && <><AlertCircle className="h-3 w-3" /> Error — reintentar</>}
         </button>
+        <div className="flex flex-wrap items-center gap-2 px-1">
+          <input
+            type="date"
+            aria-label="Fecha"
+            value={date}
+            onChange={(e) => void changeDate(e.target.value)}
+            className="min-h-9 rounded-full border border-input bg-background px-3 text-sm text-muted-foreground"
+          />
+          <CommentThreadChip source={source} title={text || "Sin texto"} count={commentCount} />
+        </div>
       </div>
       <button
         type="button"
@@ -178,6 +218,13 @@ export function CompanyIssues({
   const { data: items = [], isLoading } = useQuery({
     queryKey: key,
     queryFn: () => fetchCompanyIssueItems(userId, snapshotId, company, !readOnly),
+  });
+  const countKey = issueCommentCountsKey(snapshotId, company);
+  const ids = items.map((i) => i.id);
+  const { data: counts = {} } = useQuery({
+    queryKey: [...countKey, ids.join(",")],
+    queryFn: () => fetchIssueCommentCounts(ids),
+    enabled: ids.length > 0,
   });
   const [newId, setNewId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
@@ -228,6 +275,8 @@ export function CompanyIssues({
                 autoFocus={item.id === newId}
                 onDelete={() => void remove(item)}
                 onSaved={() => void qc.invalidateQueries({ queryKey: key })}
+                commentCount={counts[item.id] ?? 0}
+                countKey={[...countKey, ids.join(",")]}
               />
             ))}
           </ol>
