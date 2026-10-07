@@ -17,6 +17,7 @@ export function CompanyGoals({
   showTitle,
   assigneeFilter = "all",
   annualAside,
+  annualAsideBeside = true,
 }: {
   data: SnapshotData;
   company: Company;
@@ -25,6 +26,7 @@ export function CompanyGoals({
   showTitle?: boolean;
   assigneeFilter?: string;
   annualAside?: ReactNode;
+  annualAsideBeside?: boolean;
 }) {
   const info = companyInfo(company)!;
   const qc = useQueryClient();
@@ -126,7 +128,7 @@ export function CompanyGoals({
         return (
           <Fragment key={level}>
             {level === "annual" && annualAside ? (
-              <div className="grid items-start gap-4 lg:grid-cols-2">
+              <div className={cn("grid items-start gap-4", annualAsideBeside && "lg:grid-cols-2")}>
                 {section}
                 {annualAside}
               </div>

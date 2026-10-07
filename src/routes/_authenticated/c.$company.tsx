@@ -93,6 +93,7 @@ function CompanyPage() {
                 onPatch={onPatch}
                 showTitle
                 assigneeFilter={filter}
+                annualAsideBeside={false}
                 annualAside={
                   <CompanyIssues
                     userId={user.id}

@@ -35,6 +35,12 @@ export function CompanyIssues({
   const [state, setState] = useState<SaveState>("idle");
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const latest = useRef("");
+  const stateRef = useRef<SaveState>("idle");
+
+  const updateState = (next: SaveState) => {
+    stateRef.current = next;
+    setState(next);
+  };
 
   useEffect(() => {
     setText(data);
@@ -42,20 +48,20 @@ export function CompanyIssues({
   }, [data]);
 
   const send = async (body: string) => {
-    setState("saving");
+    updateState("saving");
     try {
       await saveCompanyIssue(userId, snapshotId, company, body);
-      if (latest.current === body) setState("saved");
+      if (latest.current === body) updateState("saved");
       await qc.invalidateQueries({ queryKey: key });
     } catch {
-      setState("error");
+      updateState("error");
     }
   };
 
   useEffect(
     () => () => {
       clearTimeout(timer.current);
-      if (!readOnly && state === "pending") void send(latest.current);
+      if (!readOnly && stateRef.current === "pending") void send(latest.current);
     },
     // The cleanup intentionally sends the latest ref, not a stale render value.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -93,7 +99,7 @@ export function CompanyIssues({
               const body = event.target.value;
               latest.current = body;
               setText(body);
-              setState("pending");
+              updateState("pending");
               persistCompanyIssue(userId, snapshotId, company, body);
               qc.setQueryData(key, body);
               clearTimeout(timer.current);
