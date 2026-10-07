@@ -255,6 +255,7 @@ export type Database = {
           done: boolean
           id: string
           idea_date: string
+          table_data: Json | null
           text: string
           updated_at: string
           user_id: string
@@ -265,6 +266,7 @@ export type Database = {
           done?: boolean
           id?: string
           idea_date?: string
+          table_data?: Json | null
           text?: string
           updated_at?: string
           user_id?: string
@@ -275,6 +277,7 @@ export type Database = {
           done?: boolean
           id?: string
           idea_date?: string
+          table_data?: Json | null
           text?: string
           updated_at?: string
           user_id?: string
