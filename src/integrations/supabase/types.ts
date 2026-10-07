@@ -248,6 +248,39 @@ export type Database = {
           },
         ]
       }
+      ideas: {
+        Row: {
+          category: string
+          created_at: string
+          done: boolean
+          id: string
+          idea_date: string
+          text: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          done?: boolean
+          id?: string
+          idea_date?: string
+          text?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          done?: boolean
+          id?: string
+          idea_date?: string
+          text?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       people: {
         Row: {
           active: boolean

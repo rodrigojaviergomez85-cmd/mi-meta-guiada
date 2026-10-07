@@ -14,6 +14,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedBtmRouteImport } from './routes/_authenticated/btm'
+import { Route as AuthenticatedIdeasRouteImport } from './routes/_authenticated/ideas'
 import { Route as AuthenticatedCCompanyRouteImport } from './routes/_authenticated/c.$company'
 import { Route as AuthenticatedHistorialIndexRouteImport } from './routes/_authenticated/historial.index'
 import { Route as AuthenticatedHistorialSnapshotIdRouteImport } from './routes/_authenticated/historial.$snapshotId'
@@ -42,6 +43,11 @@ const AuthenticatedBtmRoute = AuthenticatedBtmRouteImport.update({
   path: '/btm',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedIdeasRoute = AuthenticatedIdeasRouteImport.update({
+  id: '/ideas',
+  path: '/ideas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCCompanyRoute = AuthenticatedCCompanyRouteImport.update({
   id: '/c/$company',
   path: '/c/$company',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/btm': typeof AuthenticatedBtmRoute
+  '/ideas': typeof AuthenticatedIdeasRoute
   '/c/$company': typeof AuthenticatedCCompanyRoute
   '/historial/$snapshotId': typeof AuthenticatedHistorialSnapshotIdRoute
   '/historial/': typeof AuthenticatedHistorialIndexRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/btm': typeof AuthenticatedBtmRoute
+  '/ideas': typeof AuthenticatedIdeasRoute
   '/': typeof AuthenticatedIndexRoute
   '/c/$company': typeof AuthenticatedCCompanyRoute
   '/historial/$snapshotId': typeof AuthenticatedHistorialSnapshotIdRoute
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/btm': typeof AuthenticatedBtmRoute
+  '/_authenticated/ideas': typeof AuthenticatedIdeasRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/c/$company': typeof AuthenticatedCCompanyRoute
   '/_authenticated/historial/$snapshotId': typeof AuthenticatedHistorialSnapshotIdRoute
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/btm'
+    | '/ideas'
     | '/c/$company'
     | '/historial/$snapshotId'
     | '/historial/'
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/btm'
+    | '/ideas'
     | '/'
     | '/c/$company'
     | '/historial/$snapshotId'
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/_authenticated/btm'
+    | '/_authenticated/ideas'
     | '/_authenticated/'
     | '/_authenticated/c/$company'
     | '/_authenticated/historial/$snapshotId'
@@ -163,6 +175,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBtmRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ideas': {
+      id: '/_authenticated/ideas'
+      path: '/ideas'
+      fullPath: '/ideas'
+      preLoaderRoute: typeof AuthenticatedIdeasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/c/$company': {
       id: '/_authenticated/c/$company'
       path: '/c/$company'
@@ -189,6 +208,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBtmRoute: typeof AuthenticatedBtmRoute
+  AuthenticatedIdeasRoute: typeof AuthenticatedIdeasRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedCCompanyRoute: typeof AuthenticatedCCompanyRoute
   AuthenticatedHistorialSnapshotIdRoute: typeof AuthenticatedHistorialSnapshotIdRoute
@@ -197,6 +217,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBtmRoute: AuthenticatedBtmRoute,
+  AuthenticatedIdeasRoute: AuthenticatedIdeasRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedCCompanyRoute: AuthenticatedCCompanyRoute,
   AuthenticatedHistorialSnapshotIdRoute: AuthenticatedHistorialSnapshotIdRoute,

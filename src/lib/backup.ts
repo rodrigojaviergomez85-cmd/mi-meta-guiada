@@ -25,7 +25,7 @@ type R = any;
 /** Downloads an Excel file with all of the user's data (one sheet per area). */
 export async function downloadBackup() {
   await Promise.allSettled([flush(), flushBtm()]);
-  const [snaps, goals, people, comments, issues, days, prios, blocks] = await Promise.all([
+  const [snaps, goals, people, comments, issues, days, prios, blocks, ideas] = await Promise.all([
     all<R>("snapshots", "created_at"),
     all<R>("goals", "position"),
     all<R>("people", "name"),
@@ -34,6 +34,7 @@ export async function downloadBackup() {
     all<R>("btm_days", "day"),
     all<R>("btm_priorities", "ref_date"),
     all<R>("btm_blocks", "day"),
+    all<R>("ideas", "idea_date"),
   ]);
   const XLSX = await import("xlsx");
   const snapById = new Map(snaps.map((s) => [s.id, s]));
@@ -66,6 +67,7 @@ export async function downloadBackup() {
       Fecha: b.day, Inicio: b.start_time.slice(0, 5), Fin: b.end_time.slice(0, 5), Actividad: b.activity,
     }))],
     ["BTM Seguimiento", days.filter((d) => d.follow_up.trim()).map((d) => ({ Fecha: d.day, Seguimiento: d.follow_up }))],
+    ["Ideas", [...ideas].reverse().map((i) => ({ Fecha: i.idea_date, Categoría: ({ personal: "Personal", e4kids: "E4Kids", e4cc: "E4CC", otros: "Otros" } as R)[i.category], Idea: i.text, Hecha: i.done ? "Sí" : "No" }))],
     ["Personas", people.map((p) => ({ Nombre: p.name, Activa: p.active ? "Sí" : "No" }))],
   ];
 

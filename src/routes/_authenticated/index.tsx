@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ChevronRight, ClipboardList, Download, History, LogOut, Plus } from "lucide-react";
+import { ChevronRight, ClipboardList, Download, History, Lightbulb, LogOut, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -125,6 +125,18 @@ function Home() {
         <span className="min-w-0 flex-1">
           <span className="block font-display text-lg font-semibold">BTM</span>
           <span className="block text-sm text-muted-foreground">Planeación semanal y diaria</span>
+        </span>
+        <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
+      </Link>
+
+      <Link
+        to="/ideas"
+        className="flex min-h-16 items-center gap-3 rounded-2xl bg-card p-4 shadow-soft transition hover:shadow-md"
+      >
+        <Lightbulb className="h-6 w-6 shrink-0 text-primary" />
+        <span className="min-w-0 flex-1">
+          <span className="block font-display text-lg font-semibold">Ideas / Notas</span>
+          <span className="block text-sm text-muted-foreground">Personal, E4Kids, E4CC y Otros</span>
         </span>
         <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
       </Link>
