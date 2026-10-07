@@ -162,27 +162,18 @@ function PeoplePicker({
           </li>
         ))}
       </ul>
-      {adding ? (
-        <form
-          className="flex gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void add();
-          }}
+      <div className="flex items-center justify-between">
+        <Button
+          variant="ghost"
+          className="h-11"
+          onClick={() => document.getElementById("person-name-input")?.focus()}
         >
-          <Input autoFocus placeholder="Nombre" value={name} onChange={(e) => setName(e.target.value)} className="h-11 text-base" />
-          <Button type="submit" className="h-11">Guardar</Button>
-        </form>
-      ) : (
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" className="h-11" onClick={() => setAdding(true)}>
-            <Plus className="mr-1 h-4 w-4" /> Agregar persona
-          </Button>
-          <button type="button" onClick={() => setManage(true)} className="min-h-11 px-2 text-sm text-muted-foreground underline">
-            Gestionar
-          </button>
-        </div>
-      )}
+          <Plus className="mr-1 h-4 w-4" /> Agregar persona
+        </Button>
+        <button type="button" onClick={() => setManage(true)} className="min-h-11 px-2 text-sm text-muted-foreground underline">
+          Gestionar
+        </button>
+      </div>
     </div>
   );
 }
