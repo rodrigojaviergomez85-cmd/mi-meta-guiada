@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Minus, Plus, Table2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -18,6 +18,8 @@ import { useBtmUser } from "@/lib/btm";
 import { todayKey } from "@/lib/btm-utils";
 import {
   addIdea,
+  asTable,
+  newTable,
   CATEGORIES,
   categoryInfo,
   deleteIdea,
@@ -68,7 +70,7 @@ function IdeasList({ uid }: { uid: string }) {
   }, [uid]);
 
   const update = (id: string, patch: IdeaPatch) =>
-    qc.setQueryData<Idea[]>(ideasKey(uid), (o) => o?.map((i) => (i.id === id ? { ...i, ...patch } : i)));
+    qc.setQueryData<Idea[]>(ideasKey(uid), (o) => o?.map((i) => (i.id === id ? ({ ...i, ...patch } as Idea) : i)));
 
   const add = async () => {
     setAdding(true);
@@ -193,6 +195,7 @@ function IdeaRow({
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const ta = useRef<HTMLTextAreaElement>(null);
   const info = categoryInfo(idea.category);
+  const table = asTable(idea.table_data);
 
   const send = async (patch: IdeaPatch) => {
     setState("saving");
@@ -279,6 +282,15 @@ function IdeaRow({
           onChange={(e) => e.target.value && change({ idea_date: e.target.value })}
           className="min-h-11 rounded-full border border-input bg-background px-3 text-sm"
         />
+        {!table && (
+          <button
+            type="button"
+            onClick={() => change({ table_data: newTable() })}
+            className="inline-flex min-h-11 items-center gap-1 rounded-full border border-dashed border-input px-3 text-sm text-muted-foreground"
+          >
+            <Table2 className="h-4 w-4" /> Tabla
+          </button>
+        )}
         <span className={cn("text-xs", state === "error" ? "text-destructive" : "text-muted-foreground")}>
           {state === "pending" && "Pendiente"}
           {state === "saving" && "Guardando…"}
@@ -286,6 +298,7 @@ function IdeaRow({
           {state === "error" && "Error, se reintentará"}
         </span>
       </div>
+      {table && <IdeaTable table={table} onChange={(t, d) => change({ table_data: t }, d)} />}
       <AlertDialog open={confirm} onOpenChange={setConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -298,5 +311,72 @@ function IdeaRow({
         </AlertDialogContent>
       </AlertDialog>
     </li>
+  );
+}
+
+function IdeaTable({ table, onChange }: { table: string[][]; onChange: (t: string[][] | null, debounce?: boolean) => void }) {
+  const cols = Math.max(1, ...table.map((r) => r.length));
+  const rows = table.map((r) => [...r, ...Array(cols - r.length).fill("")] as string[]);
+  const [confirmDel, setConfirmDel] = useState(false);
+  const set = (ri: number, ci: number, v: string) =>
+    onChange(rows.map((r, i) => (i === ri ? r.map((c, j) => (j === ci ? v : c)) : r)), true);
+  const hasText = rows.some((r) => r.some((c) => c.trim()));
+  return (
+    <div className="mt-2 space-y-2 pl-10">
+      <div className="max-w-full overflow-x-auto rounded-lg border border-input">
+        <table className="w-full border-collapse text-sm">
+          <tbody>
+            {rows.map((r, ri) => (
+              <tr key={ri} className={cn(ri === 0 && "bg-muted font-semibold")}>
+                {r.map((c, ci) => (
+                  <td key={ci} className="min-w-28 border border-input p-0 align-top">
+                    <textarea
+                      rows={1}
+                      value={c}
+                      aria-label={`Fila ${ri + 1}, columna ${ci + 1}`}
+                      onChange={(e) => set(ri, ci, e.target.value)}
+                      onInput={(e) => {
+                        const el = e.currentTarget;
+                        el.style.height = "auto";
+                        el.style.height = `${el.scrollHeight}px`;
+                      }}
+                      className="block min-h-11 w-full resize-none bg-transparent px-2 py-2.5 text-base outline-none focus:bg-accent/40"
+                    />
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="flex flex-wrap gap-1 text-sm">
+        <Button variant="ghost" className="h-11" onClick={() => onChange([...rows, Array(cols).fill("")])}>
+          <Plus className="mr-1 h-4 w-4" /> Fila
+        </Button>
+        <Button variant="ghost" className="h-11" disabled={rows.length <= 1} onClick={() => onChange(rows.slice(0, -1))}>
+          <Minus className="mr-1 h-4 w-4" /> Fila
+        </Button>
+        <Button variant="ghost" className="h-11" onClick={() => onChange(rows.map((r) => [...r, ""]))}>
+          <Plus className="mr-1 h-4 w-4" /> Columna
+        </Button>
+        <Button variant="ghost" className="h-11" disabled={cols <= 1} onClick={() => onChange(rows.map((r) => r.slice(0, -1)))}>
+          <Minus className="mr-1 h-4 w-4" /> Columna
+        </Button>
+        <Button variant="ghost" className="h-11 text-muted-foreground" onClick={() => (hasText ? setConfirmDel(true) : onChange(null))}>
+          <Trash2 className="mr-1 h-4 w-4" /> Quitar tabla
+        </Button>
+      </div>
+      <AlertDialog open={confirmDel} onOpenChange={setConfirmDel}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Quitar la tabla y su contenido?</AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={() => onChange(null)}>Quitar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 }
