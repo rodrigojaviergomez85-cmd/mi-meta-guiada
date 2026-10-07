@@ -102,6 +102,7 @@ export type Database = {
         Row: {
           company: Database["public"]["Enums"]["goal_company"]
           id: string
+          item_date: string | null
           position: number
           snapshot_id: string
           text: string
@@ -110,6 +111,7 @@ export type Database = {
         Insert: {
           company: Database["public"]["Enums"]["goal_company"]
           id?: string
+          item_date?: string | null
           position: number
           snapshot_id: string
           text?: string
@@ -118,6 +120,7 @@ export type Database = {
         Update: {
           company?: Database["public"]["Enums"]["goal_company"]
           id?: string
+          item_date?: string | null
           position?: number
           snapshot_id?: string
           text?: string
@@ -284,6 +287,38 @@ export type Database = {
         }
         Relationships: []
       }
+      issue_item_comments: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          item_id: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          item_id: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          item_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "issue_item_comments_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "company_issue_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       people: {
         Row: {
           active: boolean
@@ -393,6 +428,7 @@ export type Database = {
         Returns: {
           company: Database["public"]["Enums"]["goal_company"]
           id: string
+          item_date: string | null
           position: number
           snapshot_id: string
           text: string
