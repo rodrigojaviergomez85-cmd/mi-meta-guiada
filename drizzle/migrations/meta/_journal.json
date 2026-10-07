@@ -71,6 +71,13 @@
       "when": 1791376392006,
       "tag": "0009_ideas_table_data",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791377018936,
+      "tag": "0010_issue_item_comments_and_date",
+      "breakpoints": true
     }
   ]
 }

@@ -57,7 +57,7 @@ export async function downloadBackup() {
       return { Semana: g ? week(g.snapshot_id) : "", Empresa: g ? COMPANY[g.company] : "", Meta: g?.text ?? "", Comentario: c.body, Fecha: new Date(c.created_at).toLocaleString("es") };
     })],
     ["Issues", [...issues].sort((a, b) => sortSnap(a, b) || a.company.localeCompare(b.company) || a.position - b.position).map((i) => ({
-      Semana: week(i.snapshot_id), Empresa: COMPANY[i.company], "#": i.position, Texto: i.text,
+      Semana: week(i.snapshot_id), Empresa: COMPANY[i.company], "#": i.position, Fecha: i.item_date ?? "", Texto: i.text,
     }))],
     ["BTM Prioridades", prios.map((p) => ({
       Tipo: p.scope === "week" ? "Semana" : "Día", Fecha: p.ref_date, Prioridad: `A${p.position}`, Actividad: p.text,

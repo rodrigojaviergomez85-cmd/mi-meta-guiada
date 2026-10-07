@@ -89,3 +89,19 @@ export async function deleteCompanyIssueItem(userId: string, id: string) {
   const { error } = await supabase.rpc("delete_company_issue_item", { _id: id });
   if (error) throw error;
 }
+export async function saveCompanyIssueDate(userId: string, id: string, item_date: string) {
+  await assertCurrentUser(userId);
+  const { error } = await supabase.from("company_issue_items").update({ item_date }).eq("id", id);
+  if (error) throw error;
+}
+
+export const issueCommentCountsKey = (snapshotId: string, company: Company) => ["issue-comment-counts", snapshotId, company] as const;
+
+export async function fetchIssueCommentCounts(ids: string[]) {
+  if (!ids.length) return {};
+  const { data, error } = await supabase.from("issue_item_comments").select("item_id").in("item_id", ids);
+  if (error) throw error;
+  const counts: Record<string, number> = {};
+  (data ?? []).forEach((c) => (counts[c.item_id] = (counts[c.item_id] ?? 0) + 1));
+  return counts;
+}
