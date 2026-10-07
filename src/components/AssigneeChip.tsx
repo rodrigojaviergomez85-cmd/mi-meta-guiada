@@ -90,18 +90,24 @@ function PeoplePicker({
   const [adding, setAdding] = useState(false);
   const [name, setName] = useState("");
   const [manage, setManage] = useState(false);
-  const list = people.filter((p) => p.active && p.name.toLowerCase().includes(q.toLowerCase()));
+  const [busy, setBusy] = useState(false);
+  const list = people.filter((p) => p.active && p.name.toLowerCase().includes(q.trim().toLowerCase()));
+  const typed = q.trim().slice(0, 80);
+  const exact = people.find((p) => p.name.toLowerCase() === typed.toLowerCase());
 
-  const add = async () => {
-    const n = name.trim();
-    if (!n) return;
+  const add = async (raw: string) => {
+    const n = raw.trim().slice(0, 80);
+    if (!n || busy) return;
+    setBusy(true);
     const { data, error } = await supabase.from("people").insert({ name: n }).select().single();
+    setBusy(false);
     if (error) {
       toast.error(error.code === "23505" ? "Esa persona ya existe" : "No se pudo agregar");
       return;
     }
     await qc.invalidateQueries({ queryKey: peopleKey });
     setName("");
+    setQ("");
     setAdding(false);
     onPick(data.id);
   };
@@ -110,7 +116,28 @@ function PeoplePicker({
 
   return (
     <div className="flex min-h-0 flex-col gap-3">
-      <Input placeholder="Buscar…" value={q} onChange={(e) => setQ(e.target.value)} className="h-11 text-base" />
+      <form
+        className="flex gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (exact?.active) onPick(exact.id);
+          else if (typed && !exact) void add(typed);
+        }}
+      >
+        <Input
+          placeholder="Escribe un nombre…"
+          value={q}
+          maxLength={80}
+          enterKeyHint="done"
+          onChange={(e) => setQ(e.target.value)}
+          className="h-11 text-base"
+        />
+      </form>
+      {typed && !exact && (
+        <Button type="button" className="h-11 justify-start" disabled={busy} onClick={() => void add(typed)}>
+          <Plus className="mr-1 h-4 w-4" /> Agregar «{typed}»
+        </Button>
+      )}
       <ul className="min-h-0 flex-1 space-y-1 overflow-y-auto">
         <li>
           <button
@@ -135,27 +162,18 @@ function PeoplePicker({
           </li>
         ))}
       </ul>
-      {adding ? (
-        <form
-          className="flex gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void add();
-          }}
+      <div className="flex items-center justify-between">
+        <Button
+          variant="ghost"
+          className="h-11"
+          onClick={() => document.getElementById("person-name-input")?.focus()}
         >
-          <Input autoFocus placeholder="Nombre" value={name} onChange={(e) => setName(e.target.value)} className="h-11 text-base" />
-          <Button type="submit" className="h-11">Guardar</Button>
-        </form>
-      ) : (
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" className="h-11" onClick={() => setAdding(true)}>
-            <Plus className="mr-1 h-4 w-4" /> Agregar persona
-          </Button>
-          <button type="button" onClick={() => setManage(true)} className="min-h-11 px-2 text-sm text-muted-foreground underline">
-            Gestionar
-          </button>
-        </div>
-      )}
+          <Plus className="mr-1 h-4 w-4" /> Agregar persona
+        </Button>
+        <button type="button" onClick={() => setManage(true)} className="min-h-11 px-2 text-sm text-muted-foreground underline">
+          Gestionar
+        </button>
+      </div>
     </div>
   );
 }
