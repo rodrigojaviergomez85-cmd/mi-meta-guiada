@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ChevronRight, ClipboardList, History, LogOut, Plus } from "lucide-react";
+import { ChevronRight, ClipboardList, Download, History, LogOut, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -65,6 +65,7 @@ function Home() {
   const { data, isLoading, error } = useCurrent();
   const { data: profile } = useProfile();
   const [open, setOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const qc = useQueryClient();
   const navigate = useNavigate();
 
@@ -128,9 +129,30 @@ function Home() {
         <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
       </Link>
 
-      <Link to="/historial" className="inline-flex min-h-11 items-center gap-2 font-medium text-muted-foreground hover:text-foreground">
-        <History className="h-5 w-5" /> Historial
-      </Link>
+      <div className="flex flex-wrap items-center gap-x-6">
+        <Link to="/historial" className="inline-flex min-h-11 items-center gap-2 font-medium text-muted-foreground hover:text-foreground">
+          <History className="h-5 w-5" /> Historial
+        </Link>
+        <button
+          type="button"
+          disabled={exporting}
+          onClick={async () => {
+            setExporting(true);
+            try {
+              const { downloadBackup } = await import("@/lib/backup");
+              await downloadBackup();
+              toast.success("Respaldo descargado ✓");
+            } catch {
+              toast.error("No se pudo crear el respaldo. Revisa tu conexión e intenta de nuevo.");
+            } finally {
+              setExporting(false);
+            }
+          }}
+          className="inline-flex min-h-11 items-center gap-2 font-medium text-muted-foreground hover:text-foreground disabled:opacity-50"
+        >
+          <Download className="h-5 w-5" /> {exporting ? "Preparando…" : "Descargar respaldo (Excel)"}
+        </button>
+      </div>
 
       <Button
         className="fixed bottom-6 right-5 h-14 rounded-full px-6 text-base shadow-soft lg:hidden"
