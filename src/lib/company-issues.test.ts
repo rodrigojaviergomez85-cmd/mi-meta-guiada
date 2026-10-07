@@ -5,7 +5,7 @@ const rows = [
   { id: "i1", snapshot_id: "s1", company: "e4kids", position: 1, text: "Primero", updated_at: "now" },
 ];
 let currentUser = "u1";
-const writes: Array<{ kind: string; value?: string; id?: string }> = [];
+const writes: Array<{ kind: string; value?: string | undefined; id?: string | undefined }> = [];
 
 function queryBuilder() {
   const builder = {
