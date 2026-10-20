@@ -251,6 +251,71 @@ export type Database = {
           },
         ]
       }
+      habit_challenge_days: {
+        Row: {
+          challenge_id: string
+          checked_on: string
+          comment: string
+          day_number: number
+          updated_at: string
+        }
+        Insert: {
+          challenge_id: string
+          checked_on?: string
+          comment?: string
+          day_number: number
+          updated_at?: string
+        }
+        Update: {
+          challenge_id?: string
+          checked_on?: string
+          comment?: string
+          day_number?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "habit_challenge_days_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "habit_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      habit_challenges: {
+        Row: {
+          active: boolean
+          area: string
+          created_at: string
+          habit: string
+          id: string
+          start_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          area?: string
+          created_at?: string
+          habit?: string
+          id?: string
+          start_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          active?: boolean
+          area?: string
+          created_at?: string
+          habit?: string
+          id?: string
+          start_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ideas: {
         Row: {
           category: string

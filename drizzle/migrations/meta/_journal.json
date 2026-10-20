@@ -85,6 +85,13 @@
       "when": 1791377997635,
       "tag": "0011_move_goal_and_issue",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792456937189,
+      "tag": "0012_habit_challenge_66",
+      "breakpoints": true
     }
   ]
 }
