@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, ChevronDown, MessageSquare, RotateCcw, Target } from "lucide-react";
+import { ChevronDown, MessageSquare, RotateCcw, Target, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -217,13 +217,19 @@ export function Challenge66() {
                       aria-label={`Día ${n}${d ? `, marcado ${fmt(d.checked_on)}` : ""}`}
                       className={cn(
                         "relative flex aspect-square min-h-11 flex-col items-start justify-between rounded-lg border p-1.5 text-left text-xs font-semibold transition",
-                        d ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background hover:border-primary/50",
+                        d ? "border-destructive/60 bg-background" : "border-border bg-background hover:border-primary/50",
                         selected === n && "ring-2 ring-ring ring-offset-1",
                         n === TOTAL && !d && "border-primary/60 text-primary",
                       )}
                     >
-                      <span>{n}</span>
-                      {d && <Check className="h-4 w-4 self-end" />}
+                      <span className={cn(d && "text-muted-foreground")}>{n}</span>
+                      {d && (
+                        <X
+                          strokeWidth={3.5}
+                          aria-hidden
+                          className="pointer-events-none absolute inset-0 m-auto h-8 w-8 text-destructive"
+                        />
+                      )}
                       {d?.comment && <MessageSquare className="absolute right-1 top-1 h-3 w-3" />}
                       {n === TOTAL && !d && <span className="text-[9px] leading-none">¡Lo lograste!</span>}
                     </button>
@@ -313,7 +319,9 @@ function DayPanel({
       />
       <div className="flex flex-wrap gap-2">
         <Button variant="outline" className="h-11" onClick={onClose}>Listo</Button>
-        <Button variant="ghost" className="h-11 text-destructive" onClick={onUncheck}>Desmarcar día</Button>
+        <Button variant="outline" className="h-11 text-destructive" onClick={onUncheck}>
+          <X className="h-4 w-4" /> Quitar la X de este día
+        </Button>
       </div>
     </div>
   );
