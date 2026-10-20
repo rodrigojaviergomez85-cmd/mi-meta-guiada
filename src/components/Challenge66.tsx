@@ -216,13 +216,13 @@ export function Challenge66() {
                       aria-pressed={!!d}
                       aria-label={`Día ${n}${d ? `, marcado ${fmt(d.checked_on)}` : ""}`}
                       className={cn(
-                        "relative flex aspect-square min-h-11 flex-col items-start justify-between rounded-lg border p-1.5 text-left text-xs font-semibold transition",
+                        "relative flex aspect-square min-h-11 flex-col items-start justify-between overflow-hidden rounded-lg border p-1.5 text-left text-xs font-semibold transition",
                         d ? "border-destructive/60 bg-background" : "border-border bg-background hover:border-primary/50",
                         selected === n && "ring-2 ring-ring ring-offset-1",
                         n === TOTAL && !d && "border-primary/60 text-primary",
                       )}
                     >
-                      <span className={cn("rounded bg-background/90 px-0.5 leading-none", d && "text-muted-foreground")}>{n}</span>
+                      <span className={cn("relative z-10 rounded bg-background px-1 leading-tight", d && "text-muted-foreground")}>{n}</span>
                       {d && (
                         <svg
                           viewBox="0 0 100 100"
@@ -234,7 +234,7 @@ export function Challenge66() {
                           <line x1="97" y1="3" x2="3" y2="97" stroke="currentColor" strokeWidth="7" vectorEffect="non-scaling-stroke" strokeLinecap="round" />
                         </svg>
                       )}
-                      {d?.comment && <MessageSquare className="absolute right-1 top-1 h-3 w-3" />}
+                      {d?.comment && <MessageSquare className="absolute right-1 top-1 z-10 h-3 w-3" />}
                       {n === TOTAL && !d && <span className="text-[9px] leading-none">¡Lo lograste!</span>}
                     </button>
                   );
