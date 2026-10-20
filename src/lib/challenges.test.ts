@@ -26,9 +26,17 @@ vi.mock("@/integrations/supabase/client", () => ({
   } },
 }));
 
-import { createChallenge, daysForChallenge, loadChallenges } from "./challenges";
+import { challengeDate, createChallenge, daysForChallenge, loadChallenges } from "./challenges";
 
 describe("simultaneous habit challenges", () => {
+  it("dates all 66 days consecutively from the chosen start date", () => {
+    expect(challengeDate("2026-10-19", 1)).toBe("2026-10-19");
+    expect(challengeDate("2026-10-19", 2)).toBe("2026-10-20");
+    expect(challengeDate("2026-10-19", 66)).toBe("2026-12-23");
+    expect(challengeDate("2026-12-31", 2)).toBe("2027-01-01");
+    expect(challengeDate("2028-02-28", 2)).toBe("2028-02-29");
+    expect(challengeDate("2026-10-20", 66)).toBe("2026-12-24");
+  });
   beforeEach(() => {
     db.challenges = [{ id: "first", habit: "Leer", area: "personal", start_date: "2026-10-19" }];
     db.days = [{ challenge_id: "first", day_number: 1, checked_on: "2026-10-19", comment: "Nota original" }];
