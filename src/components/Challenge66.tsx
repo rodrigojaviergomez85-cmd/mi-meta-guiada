@@ -265,6 +265,63 @@ export function Challenge66() {
               >
                 <RotateCcw className="h-4 w-4" /> Archivar y empezar nuevo reto
               </button>
+
+              {ask !== null && (
+                <AlertDialog open onOpenChange={(o) => !o && setAsk(null)}>
+                  <AlertDialogContent className="rounded-2xl">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        {byNum.get(ask) ? `¿Quitar la X del día ${ask}?` : `¿Marcar el día ${ask}?`}
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {byNum.get(ask)
+                          ? `Está marcado como cumplido el ${fmt(byNum.get(ask)!.checked_on)}.${
+                              byNum.get(ask)!.comment ? " También se borrará su comentario." : ""
+                            }`
+                          : `Se marcará como cumplido hoy, ${fmt(todayKey())}.`}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="gap-2 sm:gap-2">
+                      {byNum.get(ask) ? (
+                        <>
+                          <AlertDialogAction
+                            className="h-11 bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            onClick={() => {
+                              const n = ask;
+                              setAsk(null);
+                              uncheck(n, false);
+                            }}
+                          >
+                            <X className="h-4 w-4" /> Quitar la X
+                          </AlertDialogAction>
+                          <AlertDialogAction
+                            className="h-11"
+                            onClick={() => {
+                              const n = ask;
+                              setAsk(null);
+                              setSelected(n);
+                            }}
+                          >
+                            <MessageSquare className="h-4 w-4" /> Comentario o fecha
+                          </AlertDialogAction>
+                        </>
+                      ) : (
+                        <AlertDialogAction
+                          className="h-11"
+                          onClick={() => {
+                            const n = ask;
+                            setAsk(null);
+                            mark(n);
+                          }}
+                        >
+                          Marcar día {ask}
+                        </AlertDialogAction>
+                      )}
+                      <AlertDialogCancel className="mt-0 h-11">Cancelar</AlertDialogCancel>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
             </>
           )}
         </div>
