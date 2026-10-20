@@ -319,7 +319,9 @@ function DayPanel({
       />
       <div className="flex flex-wrap gap-2">
         <Button variant="outline" className="h-11" onClick={onClose}>Listo</Button>
-        <Button variant="ghost" className="h-11 text-destructive" onClick={onUncheck}>Desmarcar día</Button>
+        <Button variant="outline" className="h-11 text-destructive" onClick={onUncheck}>
+          <X className="h-4 w-4" /> Quitar la X de este día
+        </Button>
       </div>
     </div>
   );
