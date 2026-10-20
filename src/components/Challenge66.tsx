@@ -2,6 +2,16 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, MessageSquare, RotateCcw, Target, X } from "lucide-react";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -48,6 +58,7 @@ export function Challenge66() {
   const { data, isLoading } = useQuery({ queryKey: ["challenge66"], queryFn: loadChallenge });
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
+  const [ask, setAsk] = useState<number | null>(null);
   const refresh = () => qc.invalidateQueries({ queryKey: ["challenge66"] });
 
   const challenge = data?.challenge ?? null;
@@ -75,13 +86,8 @@ export function Challenge66() {
     }
   };
 
-  const toggle = async (n: number) => {
+  const mark = async (n: number) => {
     if (!challenge) return;
-    const existing = byNum.get(n);
-    if (existing) {
-      setSelected(n);
-      return;
-    }
     const row = { day_number: n, checked_on: todayKey(), comment: "" };
     qc.setQueryData(["challenge66"], { challenge, days: [...days, row] });
     setSelected(n);
@@ -109,10 +115,10 @@ export function Challenge66() {
     }
   };
 
-  const uncheck = async (n: number) => {
+  const uncheck = async (n: number, guard = true) => {
     if (!challenge) return;
     const d = byNum.get(n);
-    if (d?.comment && !confirm("Este día tiene comentarios. ¿Desmarcarlo de todos modos?")) return;
+    if (guard && d?.comment && !confirm("Este día tiene comentarios. ¿Desmarcarlo de todos modos?")) return;
     qc.setQueryData(["challenge66"], { challenge, days: days.filter((x) => x.day_number !== n) });
     setSelected(null);
     const { error } = await supabase
@@ -212,7 +218,7 @@ export function Challenge66() {
                     <button
                       key={n}
                       type="button"
-                      onClick={() => toggle(n)}
+                      onClick={() => setAsk(n)}
                       aria-pressed={!!d}
                       aria-label={`Día ${n}${d ? `, marcado ${fmt(d.checked_on)}` : ""}`}
                       className={cn(
