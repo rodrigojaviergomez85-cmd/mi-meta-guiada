@@ -251,7 +251,7 @@ export function Challenge66() {
                       aria-pressed={!!d}
                       aria-label={`Día ${n}${d ? `, marcado ${fmt(d.checked_on)}` : ""}`}
                       className={cn(
-                        "relative flex h-auto aspect-square min-h-11 flex-col items-start justify-between overflow-hidden rounded-lg border p-1.5 text-left text-xs font-semibold transition",
+                        "relative flex h-auto aspect-square min-h-11 flex-col items-start justify-between overflow-hidden rounded-lg border p-1.5 text-left text-xs font-semibold transition [&>svg.challenge-cross]:size-full",
                         d ? "border-destructive/60 bg-background" : "border-border bg-background hover:border-primary/50",
                         selected === n && "ring-2 ring-ring ring-offset-1",
                         n === TOTAL && !d && "border-primary/60 text-primary",
@@ -263,7 +263,7 @@ export function Challenge66() {
                           viewBox="0 0 100 100"
                           preserveAspectRatio="none"
                           aria-hidden
-                          className="pointer-events-none absolute inset-0 h-full w-full text-destructive"
+                           className="challenge-cross pointer-events-none absolute inset-0 h-full w-full text-destructive"
                         >
                           <line x1="3" y1="3" x2="97" y2="97" stroke="currentColor" strokeWidth="7" vectorEffect="non-scaling-stroke" strokeLinecap="round" />
                           <line x1="97" y1="3" x2="3" y2="97" stroke="currentColor" strokeWidth="7" vectorEffect="non-scaling-stroke" strokeLinecap="round" />
