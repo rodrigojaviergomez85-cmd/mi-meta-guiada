@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronDown, MessageSquare, RotateCcw, Target, X } from "lucide-react";
+import { ChevronDown, MessageSquare, Plus, RotateCcw, Target, X } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { todayKey } from "@/lib/btm-utils";
 import { cn } from "@/lib/utils";
+import { createChallenge, daysForChallenge, loadChallenges, type Challenge, type ChallengeDay } from "@/lib/challenges";
 
 const TOTAL = 66;
 const AREAS = [
@@ -29,56 +30,64 @@ const AREAS = [
   ["finanzas", "Finanzas"],
 ] as const;
 
-type Challenge = { id: string; habit: string; area: string; start_date: string };
-type Day = { day_number: number; checked_on: string; comment: string };
+type Day = ChallengeDay;
 
 const fmt = (k: string) => {
   const [y = 0, m = 1, d = 1] = k.split("-").map(Number);
   return new Date(y, m - 1, d).toLocaleDateString("es", { day: "numeric", month: "short", year: "numeric" });
 };
 
-async function loadChallenge() {
-  const { data: c, error } = await supabase
-    .from("habit_challenges")
-    .select("id, habit, area, start_date")
-    .eq("active", true)
-    .maybeSingle();
-  if (error) throw error;
-  if (!c) return { challenge: null as Challenge | null, days: [] as Day[] };
-  const { data: days, error: e2 } = await supabase
-    .from("habit_challenge_days")
-    .select("day_number, checked_on, comment")
-    .eq("challenge_id", c.id);
-  if (e2) throw e2;
-  return { challenge: c as Challenge, days: (days ?? []) as Day[] };
-}
-
 export function Challenge66() {
   const qc = useQueryClient();
-  const { data, isLoading } = useQuery({ queryKey: ["challenge66"], queryFn: loadChallenge });
+  const { data, isLoading, error: loadError } = useQuery({ queryKey: ["challenge66"], queryFn: loadChallenges });
   const [open, setOpen] = useState(false);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
   const [ask, setAsk] = useState<number | null>(null);
   const refresh = () => qc.invalidateQueries({ queryKey: ["challenge66"] });
 
-  const challenge = data?.challenge ?? null;
-  const days = data?.days ?? [];
+  const challenges = data?.challenges ?? [];
+  const challenge = challenges.find((c) => c.id === activeId) ?? challenges[0] ?? null;
+  const days = challenge ? daysForChallenge(data?.days ?? [], challenge.id) : [];
   const byNum = new Map(days.map((d) => [d.day_number, d]));
+  const selectedDay = selected === null ? undefined : byNum.get(selected);
+  const askedDay = ask === null ? undefined : byNum.get(ask);
   const count = days.length;
   const pct = Math.round((count / TOTAL) * 100);
 
+  const setDays = (nextDays: Day[]) => {
+    if (!challenge) return;
+    qc.setQueryData<Awaited<ReturnType<typeof loadChallenges>>>(["challenge66"], (current) => current && ({
+      ...current,
+      days: [...current.days.filter((d) => d.challenge_id !== challenge.id), ...nextDays],
+    }));
+  };
+
   const start = async () => {
-    const { error } = await supabase.from("habit_challenges").insert({ habit: "", start_date: todayKey() });
-    if (error) {
+    if (creating) return;
+    setCreating(true);
+    try {
+      const created = await createChallenge();
+      qc.setQueryData<Awaited<ReturnType<typeof loadChallenges>>>(["challenge66"], (current) => ({
+        challenges: [...(current?.challenges ?? []), created], days: current?.days ?? [],
+      }));
+      setActiveId(created.id);
+      setSelected(null);
+      setAsk(null);
+      await refresh();
+    } catch {
       toast.error("No se pudo iniciar el reto");
-      return;
+    } finally {
+      setCreating(false);
     }
-    refresh();
   };
 
   const updateChallenge = async (patch: Partial<Challenge>) => {
     if (!challenge) return;
-    qc.setQueryData(["challenge66"], { challenge: { ...challenge, ...patch }, days });
+    qc.setQueryData<Awaited<ReturnType<typeof loadChallenges>>>(["challenge66"], (current) => current && ({
+      ...current, challenges: current.challenges.map((c) => c.id === challenge.id ? { ...c, ...patch } : c),
+    }));
     const { error } = await supabase.from("habit_challenges").update(patch).eq("id", challenge.id);
     if (error) {
       toast.error("No se pudo guardar");
@@ -88,10 +97,10 @@ export function Challenge66() {
 
   const mark = async (n: number) => {
     if (!challenge) return;
-    const row = { day_number: n, checked_on: todayKey(), comment: "" };
-    qc.setQueryData(["challenge66"], { challenge, days: [...days, row] });
+    const row = { challenge_id: challenge.id, day_number: n, checked_on: todayKey(), comment: "" };
+    setDays([...days, row]);
     setSelected(n);
-    const { error } = await supabase.from("habit_challenge_days").insert({ challenge_id: challenge.id, ...row });
+    const { error } = await supabase.from("habit_challenge_days").insert(row);
     if (error) {
       toast.error("No se pudo marcar el día");
       refresh();
@@ -100,10 +109,7 @@ export function Challenge66() {
 
   const saveDay = async (n: number, patch: Partial<Day>) => {
     if (!challenge) return;
-    qc.setQueryData(["challenge66"], {
-      challenge,
-      days: days.map((d) => (d.day_number === n ? { ...d, ...patch } : d)),
-    });
+    setDays(days.map((d) => (d.day_number === n ? { ...d, ...patch } : d)));
     const { error } = await supabase
       .from("habit_challenge_days")
       .update(patch)
@@ -119,7 +125,7 @@ export function Challenge66() {
     if (!challenge) return;
     const d = byNum.get(n);
     if (guard && d?.comment && !confirm("Este día tiene comentarios. ¿Desmarcarlo de todos modos?")) return;
-    qc.setQueryData(["challenge66"], { challenge, days: days.filter((x) => x.day_number !== n) });
+    setDays(days.filter((x) => x.day_number !== n));
     setSelected(null);
     const { error } = await supabase
       .from("habit_challenge_days")
@@ -141,24 +147,29 @@ export function Challenge66() {
       return;
     }
     setSelected(null);
+    qc.setQueryData<Awaited<ReturnType<typeof loadChallenges>>>(["challenge66"], (current) => current && ({
+      challenges: current.challenges.filter((c) => c.id !== challenge.id),
+      days: current.days.filter((d) => d.challenge_id !== challenge.id),
+    }));
     await start();
   };
 
   return (
     <section className="rounded-2xl bg-card shadow-soft">
-      <button
+      <Button
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="flex min-h-16 w-full items-center gap-3 p-4 text-left"
+        variant="ghost"
+        className="flex h-auto min-h-16 w-full items-center gap-3 whitespace-normal p-4 text-left"
       >
         <Target className="h-6 w-6 shrink-0 text-primary" />
         <span className="min-w-0 flex-1">
-          <span className="block font-display text-lg font-semibold">Reto 66 días</span>
+          <span className="block font-display text-lg font-semibold">Retos de 66 días</span>
           <span className="block truncate text-sm text-muted-foreground">
             {challenge
               ? `${challenge.habit || "Sin hábito definido"} · ${count} de ${TOTAL} días (${pct}%)`
-              : "Un hábito a la vez"}
+              : "Sin retos activos"}
           </span>
           {challenge && (
             <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-muted">
@@ -167,22 +178,39 @@ export function Challenge66() {
           )}
         </span>
         <ChevronDown className={cn("h-5 w-5 shrink-0 text-muted-foreground transition", open && "rotate-180")} />
-      </button>
+      </Button>
 
       {open && (
         <div className="space-y-4 border-t border-border p-4">
           {isLoading && <p className="text-sm text-muted-foreground">Cargando…</p>}
-          {!isLoading && !challenge && (
-            <Button className="h-11" onClick={start}>
-              Empezar reto de 66 días
-            </Button>
+          {loadError && <p role="alert" className="text-sm text-destructive">No se pudieron cargar tus retos.</p>}
+          {!isLoading && !loadError && (
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+              {challenge && (
+                <label className="min-w-0 flex-1 space-y-1 text-sm">
+                  <span className="font-medium">Retos activos ({challenges.length})</span>
+                  <select
+                    value={challenge.id}
+                    onChange={(e) => { setActiveId(e.target.value); setSelected(null); setAsk(null); }}
+                    className="h-11 w-full min-w-0 rounded-lg border border-input bg-background px-2"
+                  >
+                    {challenges.map((c, i) => (
+                      <option key={c.id} value={c.id}>{c.habit || `Reto ${i + 1} sin hábito definido`} · {daysForChallenge(data?.days ?? [], c.id).length}/66</option>
+                    ))}
+                  </select>
+                </label>
+              )}
+              <Button className="h-11 shrink-0" onClick={start} disabled={creating}>
+                <Plus className="h-4 w-4" /> {creating ? "Creando…" : "Nuevo reto"}
+              </Button>
+            </div>
           )}
           {challenge && (
             <>
               <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto]">
                 <label className="space-y-1 text-sm">
                   <span className="font-medium">Hábito</span>
-                  <HabitInput value={challenge.habit} onSave={(habit) => updateChallenge({ habit })} />
+                  <HabitInput key={challenge.id} value={challenge.habit} onSave={(habit) => updateChallenge({ habit })} />
                 </label>
                 <label className="space-y-1 text-sm">
                   <span className="font-medium">Área</span>
@@ -215,14 +243,15 @@ export function Challenge66() {
                 {Array.from({ length: TOTAL }, (_, i) => i + 1).map((n) => {
                   const d = byNum.get(n);
                   return (
-                    <button
+                    <Button
                       key={n}
                       type="button"
+                      variant="ghost"
                       onClick={() => setAsk(n)}
                       aria-pressed={!!d}
                       aria-label={`Día ${n}${d ? `, marcado ${fmt(d.checked_on)}` : ""}`}
                       className={cn(
-                        "relative flex aspect-square min-h-11 flex-col items-start justify-between overflow-hidden rounded-lg border p-1.5 text-left text-xs font-semibold transition",
+                        "relative flex h-auto aspect-square min-h-11 flex-col items-start justify-between overflow-hidden rounded-lg border p-1.5 text-left text-xs font-semibold transition [&>svg.challenge-cross]:size-full",
                         d ? "border-destructive/60 bg-background" : "border-border bg-background hover:border-primary/50",
                         selected === n && "ring-2 ring-ring ring-offset-1",
                         n === TOTAL && !d && "border-primary/60 text-primary",
@@ -234,7 +263,7 @@ export function Challenge66() {
                           viewBox="0 0 100 100"
                           preserveAspectRatio="none"
                           aria-hidden
-                          className="pointer-events-none absolute inset-0 h-full w-full text-destructive"
+                           className="challenge-cross pointer-events-none absolute inset-0 h-full w-full text-destructive"
                         >
                           <line x1="3" y1="3" x2="97" y2="97" stroke="currentColor" strokeWidth="7" vectorEffect="non-scaling-stroke" strokeLinecap="round" />
                           <line x1="97" y1="3" x2="3" y2="97" stroke="currentColor" strokeWidth="7" vectorEffect="non-scaling-stroke" strokeLinecap="round" />
@@ -242,47 +271,48 @@ export function Challenge66() {
                       )}
                       {d?.comment && <MessageSquare className="absolute right-1 top-1 z-10 h-3 w-3" />}
                       {n === TOTAL && !d && <span className="text-[9px] leading-none">¡Lo lograste!</span>}
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
 
-              {selected && byNum.get(selected) && (
+              {selected !== null && selectedDay && (
                 <DayPanel
-                  key={selected}
+                  key={`${challenge.id}-${selected}`}
                   n={selected}
-                  day={byNum.get(selected)!}
+                  day={selectedDay}
                   onSave={(p) => saveDay(selected, p)}
                   onUncheck={() => uncheck(selected)}
                   onClose={() => setSelected(null)}
                 />
               )}
 
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={restart}
                 className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground"
               >
                 <RotateCcw className="h-4 w-4" /> Archivar y empezar nuevo reto
-              </button>
+              </Button>
 
               {ask !== null && (
                 <AlertDialog open onOpenChange={(o) => !o && setAsk(null)}>
                   <AlertDialogContent className="rounded-2xl">
                     <AlertDialogHeader>
                       <AlertDialogTitle>
-                        {byNum.get(ask) ? `¿Quitar la X del día ${ask}?` : `¿Marcar el día ${ask}?`}
+                        {askedDay ? `¿Quitar la X del día ${ask}?` : `¿Marcar el día ${ask}?`}
                       </AlertDialogTitle>
                       <AlertDialogDescription>
-                        {byNum.get(ask)
-                          ? `Está marcado como cumplido el ${fmt(byNum.get(ask)!.checked_on)}.${
-                              byNum.get(ask)!.comment ? " También se borrará su comentario." : ""
+                        {askedDay
+                          ? `Está marcado como cumplido el ${fmt(askedDay.checked_on)}.${
+                              askedDay.comment ? " También se borrará su comentario." : ""
                             }`
                           : `Se marcará como cumplido hoy, ${fmt(todayKey())}.`}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter className="gap-2 sm:gap-2">
-                      {byNum.get(ask) ? (
+                      {askedDay ? (
                         <>
                           <AlertDialogAction
                             className="h-11 bg-destructive text-destructive-foreground hover:bg-destructive/90"
