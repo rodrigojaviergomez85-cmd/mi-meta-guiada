@@ -222,13 +222,17 @@ export function Challenge66() {
                         n === TOTAL && !d && "border-primary/60 text-primary",
                       )}
                     >
-                      <span className={cn(d && "text-muted-foreground")}>{n}</span>
+                      <span className={cn("rounded bg-background/90 px-0.5 leading-none", d && "text-muted-foreground")}>{n}</span>
                       {d && (
-                        <X
-                          strokeWidth={3.5}
+                        <svg
+                          viewBox="0 0 100 100"
+                          preserveAspectRatio="none"
                           aria-hidden
-                          className="pointer-events-none absolute inset-0 m-auto h-8 w-8 text-destructive"
-                        />
+                          className="pointer-events-none absolute inset-0 h-full w-full text-destructive"
+                        >
+                          <line x1="3" y1="3" x2="97" y2="97" stroke="currentColor" strokeWidth="7" vectorEffect="non-scaling-stroke" strokeLinecap="round" />
+                          <line x1="97" y1="3" x2="3" y2="97" stroke="currentColor" strokeWidth="7" vectorEffect="non-scaling-stroke" strokeLinecap="round" />
+                        </svg>
                       )}
                       {d?.comment && <MessageSquare className="absolute right-1 top-1 h-3 w-3" />}
                       {n === TOTAL && !d && <span className="text-[9px] leading-none">¡Lo lograste!</span>}
