@@ -17,3 +17,4 @@
 - BTM dates are local "YYYY-MM-DD" strings via `src/lib/btm-utils.ts` (never toISOString); why: avoids UTC day shifts.
 - Company issues are ordered rows in `company_issue_items`, scoped by snapshot and company; why: users manage them as a historical list beside annual goals.
 - Ideas/notes live in `ideas` (user-scoped, not tied to snapshots), edited via `src/lib/ideas.ts` with a per-user localStorage pending overlay; why: notes persist across weeks and survive offline edits.
+- Habit challenges use `src/lib/challenges.ts` for active-list reads and creation, and scope day state by challenge ID; why: simultaneous challenges must retain independent progress and comments.
