@@ -141,6 +141,7 @@
   html {
     font-size: 17px;
     -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
   }
   body {
     background-color: var(--color-background);
@@ -150,5 +151,12 @@
   }
   h1, h2, h3 {
     font-family: var(--font-display);
+  }
+}
+
+/* iOS zooms focused fields below 16px, leaving the page horizontally panned. */
+@media (max-width: 639px) {
+  input, select, textarea {
+    font-size: max(16px, 1em);
   }
 }

@@ -18,3 +18,4 @@
 - Company issues are ordered rows in `company_issue_items`, scoped by snapshot and company; why: users manage them as a historical list beside annual goals.
 - Ideas/notes live in `ideas` (user-scoped, not tied to snapshots), edited via `src/lib/ideas.ts` with a per-user localStorage pending overlay; why: notes persist across weeks and survive offline edits.
 - Habit challenges use `src/lib/challenges.ts` for active-list reads and creation, and scope day state by challenge ID; why: simultaneous challenges must retain independent progress and comments.
+- Mobile form controls keep a minimum 16px font and shrinkable grid tracks; why: prevent iOS focus zoom and intrinsic date-field overflow without disabling user zoom.
