@@ -19,6 +19,8 @@ export const Route = createFileRoute("/_authenticated/")({
       { name: "description", content: "Resumen semanal de metas Personal, E4CC y E4Kids." },
       { property: "og:title", content: "Mi 411 — Inicio" },
       { property: "og:description", content: "Resumen semanal de metas Personal, E4CC y E4Kids." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Home,
@@ -78,7 +80,7 @@ function Home() {
   };
 
   return (
-    <main className="mx-auto max-w-5xl space-y-5 px-4 pb-28 pt-6 lg:pb-10">
+    <main className="mx-auto w-full min-w-0 max-w-5xl space-y-5 px-4 pb-10 pt-6">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
           <h1 className="text-3xl font-bold">Mi 411</h1>
@@ -114,6 +116,9 @@ function Home() {
       {data && (
         <>
           <SnapshotBar snapshot={data.snapshot} />
+          <Button className="h-11 w-full lg:hidden" onClick={() => setOpen(true)}>
+            <Plus className="h-5 w-5 shrink-0" /> Nueva semana
+          </Button>
           <CompanyCards goals={data.goals} />
         </>
       )}
@@ -169,13 +174,6 @@ function Home() {
         </button>
       </div>
 
-      <Button
-        className="fixed bottom-6 right-5 h-14 rounded-full px-6 text-base shadow-soft lg:hidden"
-        style={{ marginBottom: "env(safe-area-inset-bottom)" }}
-        onClick={() => setOpen(true)}
-      >
-        <Plus className="mr-1 h-5 w-5" /> Nueva semana
-      </Button>
       <NewWeekDialog open={open} onOpenChange={setOpen} />
     </main>
   );

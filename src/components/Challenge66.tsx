@@ -155,7 +155,7 @@ export function Challenge66() {
   };
 
   return (
-    <section className="rounded-2xl bg-card shadow-soft">
+    <section className="min-w-0 max-w-full rounded-2xl bg-card shadow-soft">
       <Button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -207,12 +207,12 @@ export function Challenge66() {
           )}
           {challenge && (
             <>
-              <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto]">
-                <label className="space-y-1 text-sm">
+              <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
+                <label className="min-w-0 space-y-1 text-sm">
                   <span className="font-medium">Hábito</span>
                   <HabitInput key={challenge.id} value={challenge.habit} onSave={(habit) => updateChallenge({ habit })} />
                 </label>
-                <label className="space-y-1 text-sm">
+                <label className="min-w-0 space-y-1 text-sm">
                   <span className="font-medium">Área</span>
                   <select
                     value={challenge.area}
@@ -224,13 +224,13 @@ export function Challenge66() {
                     ))}
                   </select>
                 </label>
-                <label className="space-y-1 text-sm">
+                <label className="min-w-0 space-y-1 text-sm">
                   <span className="font-medium">Inicio</span>
                   <input
                     type="date"
                     value={challenge.start_date}
                     onChange={(e) => e.target.value && updateChallenge({ start_date: e.target.value })}
-                    className="h-11 w-full rounded-lg border border-input bg-background px-2"
+                    className="h-11 w-full min-w-0 max-w-full rounded-lg border border-input bg-background px-2"
                   />
                 </label>
               </div>
@@ -239,7 +239,7 @@ export function Challenge66() {
                 {count} <span className="text-base font-medium text-muted-foreground">de {TOTAL} días marcados · faltan {TOTAL - count}</span>
               </p>
 
-              <div className="grid grid-cols-6 gap-1.5">
+              <div className="grid min-w-0 grid-cols-6 gap-1.5">
                 {Array.from({ length: TOTAL }, (_, i) => i + 1).map((n) => {
                   const d = byNum.get(n);
                   const date = challengeDate(challenge.start_date, n);
