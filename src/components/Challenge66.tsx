@@ -100,7 +100,7 @@ export function Challenge66() {
     const row = { challenge_id: challenge.id, day_number: n, checked_on: todayKey(), comment: "" };
     setDays([...days, row]);
     setSelected(n);
-    const { error } = await supabase.from("habit_challenge_days").insert({ challenge_id: challenge.id, ...row });
+    const { error } = await supabase.from("habit_challenge_days").insert(row);
     if (error) {
       toast.error("No se pudo marcar el día");
       refresh();
