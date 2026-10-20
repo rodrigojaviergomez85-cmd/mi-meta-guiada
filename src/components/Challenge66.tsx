@@ -23,7 +23,7 @@ type Challenge = { id: string; habit: string; area: string; start_date: string }
 type Day = { day_number: number; checked_on: string; comment: string };
 
 const fmt = (k: string) => {
-  const [y, m, d] = k.split("-").map(Number);
+  const [y = 0, m = 1, d = 1] = k.split("-").map(Number);
   return new Date(y, m - 1, d).toLocaleDateString("es", { day: "numeric", month: "short", year: "numeric" });
 };
 
@@ -58,7 +58,10 @@ export function Challenge66() {
 
   const start = async () => {
     const { error } = await supabase.from("habit_challenges").insert({ habit: "", start_date: todayKey() });
-    if (error) return toast.error("No se pudo iniciar el reto");
+    if (error) {
+      toast.error("No se pudo iniciar el reto");
+      return;
+    }
     refresh();
   };
 
@@ -127,7 +130,10 @@ export function Challenge66() {
     if (!challenge) return;
     if (!confirm("¿Archivar este reto y empezar uno nuevo? El reto actual se conserva archivado.")) return;
     const { error } = await supabase.from("habit_challenges").update({ active: false }).eq("id", challenge.id);
-    if (error) return toast.error("No se pudo archivar");
+    if (error) {
+      toast.error("No se pudo archivar");
+      return;
+    }
     setSelected(null);
     await start();
   };
