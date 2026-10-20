@@ -15,9 +15,9 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { todayKey } from "@/lib/btm-utils";
+import { shortDate, todayKey } from "@/lib/btm-utils";
 import { cn } from "@/lib/utils";
-import { createChallenge, daysForChallenge, loadChallenges, type Challenge, type ChallengeDay } from "@/lib/challenges";
+import { challengeDate, createChallenge, daysForChallenge, loadChallenges, type Challenge, type ChallengeDay } from "@/lib/challenges";
 
 const TOTAL = 66;
 const AREAS = [
@@ -242,6 +242,7 @@ export function Challenge66() {
               <div className="grid grid-cols-6 gap-1.5">
                 {Array.from({ length: TOTAL }, (_, i) => i + 1).map((n) => {
                   const d = byNum.get(n);
+                  const date = challengeDate(challenge.start_date, n);
                   return (
                     <Button
                       key={n}
@@ -249,7 +250,7 @@ export function Challenge66() {
                       variant="ghost"
                       onClick={() => setAsk(n)}
                       aria-pressed={!!d}
-                      aria-label={`Día ${n}${d ? `, marcado ${fmt(d.checked_on)}` : ""}`}
+                      aria-label={`Día ${n}, ${fmt(date)}${d ? `, marcado ${fmt(d.checked_on)}` : ""}`}
                       className={cn(
                         "relative flex h-auto aspect-square min-h-11 flex-col items-start justify-between overflow-hidden rounded-lg border p-1.5 text-left text-xs font-semibold transition [&>svg.challenge-cross]:size-full",
                         d ? "border-destructive/60 bg-background" : "border-border bg-background hover:border-primary/50",
@@ -270,7 +271,9 @@ export function Challenge66() {
                         </svg>
                       )}
                       {d?.comment && <MessageSquare className="absolute right-1 top-1 z-10 h-3 w-3" />}
-                      {n === TOTAL && !d && <span className="text-[9px] leading-none">¡Lo lograste!</span>}
+                      <span className="relative z-10 max-w-full whitespace-nowrap rounded bg-background px-0.5 text-[10px] font-medium leading-tight text-muted-foreground sm:text-xs">
+                        {shortDate(date)}
+                      </span>
                     </Button>
                   );
                 })}

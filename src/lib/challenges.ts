@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { todayKey } from "@/lib/btm-utils";
+import { addDaysKey, todayKey } from "@/lib/btm-utils";
 
 export type Challenge = { id: string; habit: string; area: string; start_date: string };
 export type ChallengeDay = { challenge_id: string; day_number: number; checked_on: string; comment: string };
@@ -25,4 +25,9 @@ export async function createChallenge() {
 
 export function daysForChallenge(days: ChallengeDay[], id: string) {
   return days.filter((day) => day.challenge_id === id);
+}
+
+/** Day one is the start date; subsequent cells follow the local calendar. */
+export function challengeDate(startDate: string, dayNumber: number) {
+  return addDaysKey(startDate, dayNumber - 1);
 }
