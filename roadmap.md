@@ -1,2 +1,2 @@
-- [ ] Move mobile Nueva semana into the page so it cannot cover content.
-- [ ] Prevent iPhone field-focus zoom and verify challenge layout at narrow widths.
+- [x] Move mobile Nueva semana into the page so it cannot cover content.
+- [x] Prevent iPhone field-focus zoom and verify challenge layout at narrow widths.
