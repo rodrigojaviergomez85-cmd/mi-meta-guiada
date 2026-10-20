@@ -9,6 +9,7 @@ import { SnapshotBar } from "@/components/SnapshotBar";
 import { NewWeekDialog } from "@/components/NewWeekDialog";
 import { SaveIndicator } from "@/components/SaveIndicator";
 import { CompanyCards } from "@/components/CompanyCards";
+import { Challenge66 } from "@/components/Challenge66";
 import { useCurrent, useProfile } from "@/lib/hooks";
 
 export const Route = createFileRoute("/_authenticated/")({
@@ -140,6 +141,8 @@ function Home() {
         </span>
         <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
       </Link>
+
+      <Challenge66 />
 
       <div className="flex flex-wrap items-center gap-x-6">
         <Link to="/historial" className="inline-flex min-h-11 items-center gap-2 font-medium text-muted-foreground hover:text-foreground">
